@@ -34,7 +34,7 @@ For example, in the screenshot shown above, this is the dictionary we get in the
 |----------------|--------------------------------------------|
 | `model_prefix` | <pre>score_9, score_8_up, score_7_up</pre> |
 | `char1_short`  | <pre>1boy, blond, short hair</pre>         |
-| `char1_long`   | <pre>1boy, smiling, blue eyes, blond, short hair,[NEW LINE HERE]<br>sitting on a motorcycle, wearing a leather jacket</pre> |
+| `char1_long`   | <pre>1boy, smiling, blue eyes, blond, short hair,[NEW LINE HERE]<br>wearing a leather jacket, sitting on a bike</pre> |
 
 And then, we can do **this** with the same input dictionary:
 
