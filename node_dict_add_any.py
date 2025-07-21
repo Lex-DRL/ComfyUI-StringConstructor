@@ -26,7 +26,7 @@ _input_types = _deepfreeze({
 		)}),
 	},
 	'optional': {
-		'str_dict': _input_types_str['optional']['str_dict'],
+		'dict': _input_types_str['optional']['dict'],
 		'value': (_IO.ANY, {"forceInput": True, 'tooltip': "The actual non-string item to add into the dict."}),
 	},
 	# 'hidden': {
@@ -42,8 +42,8 @@ class StringConstructorDictAddAny:
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.STR_DICT, )
-	RETURN_NAMES = (_DataTypes.STR_DICT.lower(), )
+	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 
 	@classmethod
@@ -52,7 +52,7 @@ class StringConstructorDictAddAny:
 
 	def main(
 		self, name: str, value: _t.Any = None,
-		str_dict: _t.Dict[str, _t.Any] = None,
+		dict: _t.Dict[str, _t.Any] = None,
 		# unique_id: str = None,
 	):
-		return _set_dict_any_type_item(name, value, in_dict=str_dict)
+		return _set_dict_any_type_item(name, value, in_dict=dict)

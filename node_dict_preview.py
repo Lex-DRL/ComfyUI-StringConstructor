@@ -17,7 +17,7 @@ from .funcs_dict_preview import preview_str_dict as _preview_str_dict
 # A tiny optimization by reusing the same immutable dict:
 _input_types = _deepfreeze({
 	'required': {
-		'str_dict': _DataTypes.input_str_dict(tooltip="A Format-Dictionary."),
+		'dict': _DataTypes.input_dict(tooltip="A Format-Dictionary."),
 	},
 	# 'optional': {},
 	'hidden': {
@@ -37,8 +37,8 @@ class StringConstructorDictPreview:
 	OUTPUT_NODE = True
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.STR_DICT, )
-	RETURN_NAMES = (_DataTypes.STR_DICT.lower(), )
+	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 
 	@classmethod
@@ -46,7 +46,7 @@ class StringConstructorDictPreview:
 		return _input_types
 
 	def main(
-		self, str_dict: _t.Dict[str, _t.Any],
+		self, dict: _t.Dict[str, _t.Any],
 		unique_id: str = None,
 	):
-		return _preview_str_dict(str_dict, unique_id=unique_id)
+		return _preview_str_dict(dict, unique_id=unique_id)

@@ -29,7 +29,7 @@ _input_types = _deepfreeze({
 		'string': (_IO.STRING, {'multiline': True, 'tooltip': "The actual sub-string to add into the dict."}),
 	},
 	'optional': {
-		'str_dict': _DataTypes.input_str_dict(tooltip="An optional Format-Dictionary to extend/update."),
+		'dict': _DataTypes.input_dict(tooltip="An optional Format-Dictionary to extend/update."),
 	},
 	# 'hidden': {
 	# 	'unique_id': 'UNIQUE_ID',  # used for text display at the bottom of the node
@@ -44,8 +44,8 @@ class StringConstructorDictAddString:
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.STR_DICT, )
-	RETURN_NAMES = (_DataTypes.STR_DICT.lower(), )
+	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 
 	@classmethod
@@ -54,7 +54,7 @@ class StringConstructorDictAddString:
 
 	def main(
 		self, name: str, cleanup: bool, string: str,
-		str_dict: _t.Dict[str, _t.Any] = None,
+		dict: _t.Dict[str, _t.Any] = None,
 		# unique_id: str = None,
 	):
-		return _set_dict_string(name, string, strip_lines=cleanup, in_dict=str_dict)
+		return _set_dict_string(name, string, strip_lines=cleanup, in_dict=dict)

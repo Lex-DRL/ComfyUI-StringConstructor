@@ -22,7 +22,7 @@ class __BaseEnum(_StrEnum):
 
 class DataTypes(__BaseEnum):
 	"""Additional data-types defined byt the node pack."""
-	STR_DICT = 'STR_DICT'
+	DICT = 'DICT'
 
 	@staticmethod
 	def __custom_input_type_dict(_dict_args: _t.Tuple[_t.Dict[str, T], ...], kwargs: _t.Dict[str, T]) -> _t.Dict[str, T]:
@@ -34,5 +34,5 @@ class DataTypes(__BaseEnum):
 		return res_dict
 
 	@classmethod
-	def input_str_dict(cls, *_dicts: _t.Dict[str, T], **kwargs: T) -> _t.Tuple[_t.Union['DataTypes', str], _t.Dict[str, T]]:
-		return cls.STR_DICT, cls.__custom_input_type_dict(_dicts, kwargs)
+	def input_dict(cls, *_dicts: _t.Dict[str, T], **kwargs: T) -> _t.Tuple[_t.Union['DataTypes', str], _t.Dict[str, T]]:
+		return cls.DICT, cls.__custom_input_type_dict(_dicts, kwargs)

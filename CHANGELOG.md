@@ -8,6 +8,8 @@ The minimally-complete version.
 New node:
 - `Add ANY to Format-Dict (Advanced)`
 
+The Format-Dict data type name changed from `STR_DICT` to just `DICT` - for potential compatibility with other nodes.
+
 # v0.0.1
 
 MVP nodes:

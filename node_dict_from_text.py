@@ -33,7 +33,7 @@ _input_types = _deepfreeze({
 		)}),
 	},
 	'optional': {
-		'str_dict': _input_types_str['optional']['str_dict'],
+		'dict': _input_types_str['optional']['dict'],
 	},
 	'hidden': {
 		'unique_id': 'UNIQUE_ID',  # used for text display at the bottom of the node
@@ -52,8 +52,8 @@ class StringConstructorDictFromText:
 	OUTPUT_NODE = True  # Just to show the status message even if not connected to anything
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.STR_DICT, )
-	RETURN_NAMES = (_DataTypes.STR_DICT.lower(), )
+	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 
 	@classmethod
@@ -62,7 +62,7 @@ class StringConstructorDictFromText:
 
 	def main(
 		self, cleanup: bool, strings: str, show_status: bool,
-		str_dict: _t.Dict[str, _t.Any] = None,
+		dict: _t.Dict[str, _t.Any] = None,
 		unique_id: str = None,
 	):
-		return _parse_dict_from_text(strings, strip_lines=cleanup, show=show_status, in_dict=str_dict, unique_id=unique_id)
+		return _parse_dict_from_text(strings, strip_lines=cleanup, show=show_status, in_dict=dict, unique_id=unique_id)
