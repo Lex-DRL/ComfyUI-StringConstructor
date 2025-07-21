@@ -40,6 +40,8 @@ And then, we can do **this** with the same input dictionary:
 
 ![image](img/screenshot2.png)
 
+> [!IMPORTANT]
+> The `BREAK` keyword shown here isn't natively supported by Comfy's `CLIP Text Encode`. But you can use [`CLIPTextEncode with BREAK syntax`](https://github.com/dfl/comfyui-clip-with-break) or [`CLIP Text Encode++` from smZNodes](https://github.com/shiimizu/ComfyUI_smZNodes) (if you want to fully switch from Comfy's to A1111's way of encoding text).
 
 ## String-Formatting syntax
 
