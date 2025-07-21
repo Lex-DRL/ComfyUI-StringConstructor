@@ -1,7 +1,7 @@
 [project]
 name = "string-constructor"
 description = "Composing prompt variants from the same text pieces with ease:\n• Build your \"library\" (dictionary) of named text chunks (sub-strings) to use it across the entire workflow.\n• Compile these snippets into different prompts in-place - with just one string formatting node.\n• Freely update the dictionary down the line - get different prompts.\n• Reference text chunks within each other to build dependent hierarchies of less/more detailed descriptions.\n• A real life-saver for regional prompting (aka area composition)."
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   {name = "Lex Darlog"}
 ]
