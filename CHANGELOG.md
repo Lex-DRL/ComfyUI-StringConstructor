@@ -1,6 +1,11 @@
-# `TODO`
-- Recursive formatting.
+## `TODO`
+
 - Multi-item nodes.
+
+# v1.0.1
+
+- ❗ Recursive formatting.
+- Tiny tweaks to tooltips/descriptions.
 
 # v1.0.0
 
