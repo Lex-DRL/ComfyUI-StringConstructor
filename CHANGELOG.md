@@ -5,3 +5,7 @@ MVP nodes:
 - `Format-Dict from Text`
 - `Format-Dict Preview`
 - `String Formatter`
+
+⚠️ Active `TODO:`
+- Recursive formatting.
+- Append non-string to Format-Dict.
