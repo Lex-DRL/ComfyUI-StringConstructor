@@ -10,7 +10,7 @@ readme = "README.md"
 dependencies = ["frozendict"]
 
 [project.urls]
-Repository = "https://github.com/Lex-DRL/ComfyUI-BestResolution"
+Repository = "https://github.com/Lex-DRL/ComfyUI-StringConstructor"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
