@@ -48,7 +48,7 @@ And then, we can do **this** with the same input dictionary:
 To build an actual text from those pieces, we utilize string formatting with the corresponding node.
 
 The rules are very simple:
-- In the text-formatting node, you simply put your `{substring_name}` inside curly braces (no spaces between) - and voila! This pattern will be replaced with the actual sub-string.
+- In the text-formatting node, you just put your `{substring_name}` inside curly braces (no spaces between) - and voila! This pattern will be replaced with the actual sub-string.
   - For your convenience, the string-formatting node itself can show the actual output to avoid any guessing.
 - Also keep in mind, that while naming your sub-strings, you must follow the same restrictions python imposes on any variable names: only ASCII letters, digits and underscore are allowed + the name can't start with a digit. So:
   - ✅ `valid_name`, `other_valid_name`, `YetAnother_ValidName`, `name4`.
