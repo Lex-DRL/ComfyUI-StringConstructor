@@ -30,7 +30,7 @@ _input_types = _deepfreeze({
 		)}),
 	},
 	'optional': {
-		'str_dict': _DataTypes.input_str_dict(tooltip=(
+		'dict': _DataTypes.input_dict(tooltip=(
 			"The dictionary to take named sub-strings from. It could be left unconnected, if the pattern doesn't reference "
 			"any sub-strings - then, this node acts exactly the same as a regular string-primitive node."
 		)),
@@ -62,7 +62,7 @@ class StringConstructorFormatter:
 
 	def main(
 		self, template: str, show_status: bool,
-		str_dict: _t.Dict[str, _t.Any] = None,
+		dict: _t.Dict[str, _t.Any] = None,
 		unique_id: str = None,
 	):
-		return _formatter(template, str_dict, show=show_status, unique_id=unique_id)
+		return _formatter(template, dict, show=show_status, unique_id=unique_id)

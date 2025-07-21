@@ -14,12 +14,13 @@ from . import _meta
 from .docstring_formatter import format_docstring as _format_docstring
 from .enums import DataTypes as _DataTypes
 from .funcs_dict_from_text import parse_dict_from_text as _parse_dict_from_text
+from .node_dict_add_string import _input_types as _input_types_str
 
 
 # A tiny optimization by reusing the same immutable dict:
 _input_types = _deepfreeze({
 	'required': {
-		'cleanup': (_IO.BOOLEAN, {'default': True, 'label_on': 'extra spaces', 'label_off': 'no', 'tooltip': (
+		'cleanup': (_IO.BOOLEAN, {'default': True, 'label_on': 'leading/trailing spaces', 'label_off': 'no', 'tooltip': (
 			"When enabled, each line in each sub-string is stripped from any spaces at its start and end."
 		)}),
 		'strings': (_IO.STRING, {'multiline': True, 'tooltip': (
@@ -32,9 +33,7 @@ _input_types = _deepfreeze({
 		)}),
 	},
 	'optional': {
-		'str_dict': _DataTypes.input_str_dict(tooltip=(
-			"An optional input dictionary. If it's connected, it will be expanded/updated with new strings."
-		)),
+		'dict': _input_types_str['optional']['dict'],
 	},
 	'hidden': {
 		'unique_id': 'UNIQUE_ID',  # used for text display at the bottom of the node
@@ -53,8 +52,8 @@ class StringConstructorDictFromText:
 	OUTPUT_NODE = True  # Just to show the status message even if not connected to anything
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.STR_DICT, )
-	RETURN_NAMES = (_DataTypes.STR_DICT.lower(), )
+	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 
 	@classmethod
@@ -63,7 +62,7 @@ class StringConstructorDictFromText:
 
 	def main(
 		self, cleanup: bool, strings: str, show_status: bool,
-		str_dict: _t.Dict[str, _t.Any] = None,
+		dict: _t.Dict[str, _t.Any] = None,
 		unique_id: str = None,
 	):
-		return _parse_dict_from_text(strings, strip_lines=cleanup, show=show_status, in_dict=str_dict, unique_id=unique_id)
+		return _parse_dict_from_text(strings, strip_lines=cleanup, show=show_status, in_dict=dict, unique_id=unique_id)
