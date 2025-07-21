@@ -26,9 +26,9 @@ _input_types = _deepfreeze({
 		'strings': (_IO.STRING, {'multiline': True, 'tooltip': (
 			"Sub-string names followed by their text. Different sub-string chunks are separated by empty lines. Example:\n\n"
 			"char1_short\n1boy, blond, short hair\n\n"
-			"char1_long\n1boy, smiling, blue eyes, blond, short hair,\nsitting on a motorcycle, wearing a leather jacket"
+			"char1_long\n1boy, smiling, blue eyes, blond, short hair,\nwearing a leather jacket, sitting on a bike"
 		)}),
-		'show_status': (_IO.BOOLEAN, {'default': False, 'label_on': 'found names', 'label_off': 'no', 'tooltip': (
+		'show_status': (_IO.BOOLEAN, {'default': False, 'label_on': 'detected names', 'label_off': 'no', 'tooltip': (
 			"Show detected string names on the node itself?"
 		)}),
 	},
