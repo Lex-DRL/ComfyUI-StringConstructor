@@ -14,12 +14,13 @@ from . import _meta
 from .docstring_formatter import format_docstring as _format_docstring
 from .enums import DataTypes as _DataTypes
 from .funcs_dict_from_text import parse_dict_from_text as _parse_dict_from_text
+from .node_dict_add_string import _input_types as _input_types_str
 
 
 # A tiny optimization by reusing the same immutable dict:
 _input_types = _deepfreeze({
 	'required': {
-		'cleanup': (_IO.BOOLEAN, {'default': True, 'label_on': 'extra spaces', 'label_off': 'no', 'tooltip': (
+		'cleanup': (_IO.BOOLEAN, {'default': True, 'label_on': 'leading/trailing spaces', 'label_off': 'no', 'tooltip': (
 			"When enabled, each line in each sub-string is stripped from any spaces at its start and end."
 		)}),
 		'strings': (_IO.STRING, {'multiline': True, 'tooltip': (
@@ -32,9 +33,7 @@ _input_types = _deepfreeze({
 		)}),
 	},
 	'optional': {
-		'str_dict': _DataTypes.input_str_dict(tooltip=(
-			"An optional input dictionary. If it's connected, it will be expanded/updated with new strings."
-		)),
+		'str_dict': _input_types_str['optional']['str_dict'],
 	},
 	'hidden': {
 		'unique_id': 'UNIQUE_ID',  # used for text display at the bottom of the node

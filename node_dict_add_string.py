@@ -23,16 +23,13 @@ _input_types = _deepfreeze({
 			"Name of the substring inserted into the dict. "
 			"It must comprise only of latin letters, digits and underscores + it can't start with a digit."
 		)}),
-		'cleanup': (_IO.BOOLEAN, {'default': True, 'label_on': 'extra spaces', 'label_off': 'no', 'tooltip': (
+		'cleanup': (_IO.BOOLEAN, {'default': True, 'label_on': 'leading/trailing spaces', 'label_off': 'no', 'tooltip': (
 			"When enabled, each line in the sub-string is stripped from any spaces at its start and end."
 		)}),
-		'string': (_IO.STRING, {'multiline': True, 'tooltip': "The actual sub-string to set into the dict."}),
+		'string': (_IO.STRING, {'multiline': True, 'tooltip': "The actual sub-string to add into the dict."}),
 	},
 	'optional': {
-		'str_dict': _DataTypes.input_str_dict(tooltip=(
-			"The dictionary to take named sub-strings from. It could be left unconnected, if the pattern doesn't reference "
-			"any sub-strings - then, this node acts exactly the same as a regular string-primitive node."
-		)),
+		'str_dict': _DataTypes.input_str_dict(tooltip="An optional Format-Dictionary to extend/update."),
 	},
 	# 'hidden': {
 	# 	'unique_id': 'UNIQUE_ID',  # used for text display at the bottom of the node
@@ -45,8 +42,6 @@ class StringConstructorDictAddString:
 	NODE_NAME = 'StringConstructorDictAddString'
 	CATEGORY = _meta.category
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
-
-	OUTPUT_NODE = True  # Just to show the status message even if not connected to anything
 
 	FUNCTION = 'main'
 	RETURN_TYPES = (_DataTypes.STR_DICT, )

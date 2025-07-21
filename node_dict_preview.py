@@ -17,7 +17,7 @@ from .funcs_dict_preview import preview_str_dict as _preview_str_dict
 # A tiny optimization by reusing the same immutable dict:
 _input_types = _deepfreeze({
 	'required': {
-		'str_dict': _DataTypes.input_str_dict(tooltip="A dictionary of named substrings."),
+		'str_dict': _DataTypes.input_str_dict(tooltip="A Format-Dictionary."),
 	},
 	# 'optional': {},
 	'hidden': {
