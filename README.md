@@ -51,7 +51,7 @@ The rules are very simple:
 - In the text-formatting node, you just put your `{substring_name}` inside curly braces (no spaces between) - and voila! This pattern will be replaced with the actual sub-string.
   - For your convenience, the string-formatting node itself can show the actual output to avoid any guessing.
 - Also keep in mind, that while naming your sub-strings, you must follow the same restrictions python imposes on any variable names: only ASCII letters, digits and underscore are allowed + the name can't start with a digit. So:
-  - ✅ `valid_name`, `other_valid_name`, `YetAnother_ValidName`, `name4`.
+  - ✅ `valid_name`, `_other_valid_name_`, `YetAnother_ValidName___`, `name4`.
   - ❌ `wrong name with spaces`, `wrong-name.with:punctuation`, `4name`.
   - Don't worry, the node pack will warn you if you type an invalid name.
 
