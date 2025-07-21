@@ -3,3 +3,4 @@
 MVP nodes:
 - `Format-Dict from Text`
 - `Format-Dict Preview`
+- `String Formatter`
