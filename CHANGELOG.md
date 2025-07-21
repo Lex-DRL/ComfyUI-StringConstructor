@@ -1,3 +1,13 @@
+# `TODO`
+- Recursive formatting.
+
+# v1.0.0
+
+The minimally-complete version.
+
+New node:
+- `Add ANY to Format-Dict (Advanced)`
+
 # v0.0.1
 
 MVP nodes:
@@ -5,7 +15,3 @@ MVP nodes:
 - `Format-Dict from Text`
 - `Format-Dict Preview`
 - `String Formatter`
-
-⚠️ Active `TODO:`
-- Recursive formatting.
-- Append non-string to Format-Dict.

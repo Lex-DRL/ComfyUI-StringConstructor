@@ -24,4 +24,4 @@ For those who are unfamiliar with python's string formatting, the rules are very
 > [!NOTE]
 > For advanced users:
 > Internally, a built-in `str.format()` is called with keyword arguments from `str_dict`, which is literally just a dict... though, an immutable one.
-> So any formatting patterns are available (like `{float_value:.3f}`). However, currently there are no nodes to append non-string values (planned, TODO).
+> So any formatting patterns are available (like `{float_value:.3f}`) + `Add ANY to Format-Dict` node is there for exactly that.
