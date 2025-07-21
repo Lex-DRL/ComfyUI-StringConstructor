@@ -12,6 +12,7 @@
 - Build your dictionary of available text chunks once. Pass it further as a single line (bus/pipe design).
 - Easily reuse these sub-strings to build many variations of a prompt as needed.
 - It's especially handy for regional prompting (aka area composition).
+- [`✨New in v1.0.1` <img src="img/recursive_toggle.png" height="24" />](#recursive-formatting)
 - ...
 - PROFIT!
 
@@ -60,3 +61,16 @@ The rules are very simple:
 > Internally, just a built-in `str.format()` is called with keyword arguments from the passed Format-Dict, which is literally just a dict with string keys... though, all the nodes in the pack ensure they return it as an immutable one.
 > 
 > So any formatting patterns are available (like `{float_value:.3f}`) + `Add ANY to Format-Dict` node is there for exactly that.
+
+## Recursive formatting
+
+It's quite simple in principle yet the most powerful feature of the pack.
+
+When formatting the string, you can let chunks reference each other, which unlocks immense possibilities - like building entire **HIERARCHIES** of descriptions with various granularity (tailored for different resolutions) or even conditional string formatting for the most advanced users.
+
+![image](img/recursive_screenshot.png)
+
+> [!WARNING]
+> Remember that with great power comes great responsibility!
+> 
+> With a sloppy use, you can create chunks that cross-reference each other in an infinite loop. The node will error out after reaching a high level of recursion (about 1k), so you're safe. But still, you've been warned!
