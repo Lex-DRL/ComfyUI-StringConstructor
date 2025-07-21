@@ -4,7 +4,13 @@
 
 import typing as _t
 
-NODE_CLASS_MAPPINGS: _t.Dict[str, type] = dict()
-NODE_DISPLAY_NAME_MAPPINGS: _t.Dict[str, str] = dict()
+from .node_dict_from_text import StringConstructorDictFromText
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
+NODE_CLASS_MAPPINGS: _t.Dict[str, type] = {
+	'StringConstructorDictFromText': StringConstructorDictFromText,
+}
+NODE_DISPLAY_NAME_MAPPINGS: _t.Dict[str, str] = {
+	'StringConstructorDictFromText': "Format-Dict from Text"
+}
+
+__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']
