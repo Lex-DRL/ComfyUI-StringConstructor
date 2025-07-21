@@ -1,0 +1,19 @@
+[project]
+name = "string-constructor"
+description = "Build your dictionary of named strings (text chunks), then easily compile different prompt variations from them - with simple string formatting.\nUnlike string-formatting nodes from other popular packs, this one is designed for specifying your sub-strings once, then dragging the entire \"library\" of them across the entire workflow (like a bus), updating it in-place as necessary. This is especially handy for regional prompting aka area composition."
+version = "0.0.1"
+authors = [
+  {name = "Lex Darlog"}
+]
+license = {file = "LICENSE.md"}
+readme = "README.md"
+dependencies = ["frozendict"]
+
+[project.urls]
+Repository = "https://github.com/Lex-DRL/ComfyUI-BestResolution"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "lex-drl"
+DisplayName = "String Constructor (Text-Formatting)"
+Icon = ""
