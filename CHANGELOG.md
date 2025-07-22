@@ -1,6 +1,7 @@
 ## `TODO`
 
 - Multi-item nodes.
+- Bulk `Search & Replace` within **keys** in dictionary.
 
 # v1.0.1
 
