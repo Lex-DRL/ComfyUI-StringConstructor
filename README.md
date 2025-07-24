@@ -12,7 +12,7 @@
 - Build your dictionary of available text chunks once. Pass it further as a single line (bus/pipe design).
 - Easily reuse these sub-strings to build many variations of a prompt as needed.
 - It's especially handy for regional prompting (aka area composition).
-- [`✨New in v1.0.1` <img src="img/recursive_toggle.png" height="24" />](#recursive-formatting)
+- [<img src="img/recursive_toggle.png" height="24" />](#recursive-formatting)
 - ...
 - PROFIT!
 
