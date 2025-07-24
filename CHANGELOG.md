@@ -1,7 +1,13 @@
 ## `TODO`
 
-- Multi-item nodes.
-- Bulk `Search & Replace` within **keys** in dictionary.
+The pack has already started to sip into dictionary-editing domain. Only the validator and the actual formatting node needs to stay. The rest need to go to their own repo.
+
+- ~~Multi-item nodes.~~
+- ~~Bulk `Search & Replace` within **keys** in dictionary.~~
+
+# v1.0.2
+
+- New node: `Validate Format-Dict`
 
 # v1.0.1
 
