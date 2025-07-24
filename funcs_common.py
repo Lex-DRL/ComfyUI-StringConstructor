@@ -60,7 +60,7 @@ def _raise_from_errors_dict(
 	raise KeyError(msg)
 
 
-def _verify_input_dict(input_dict: _t.Dict[str, _T] = None) -> _t.Dict[str, _T]:
+def _verify_input_dict_into_new(input_dict: _t.Dict[str, _T] = None) -> _t.Dict[str, _T]:
 	"""
 	Verify input dict to have only valid keys. Raises errors if invalid ones found.
 	Always returns a new dict instance (shallow copy if non-empty dict passed).

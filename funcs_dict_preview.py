@@ -7,7 +7,7 @@ import typing as _t
 
 from pprint import pformat as _pformat
 
-from .funcs_common import _show_text_on_node, _verify_input_dict
+from .funcs_common import _show_text_on_node, _verify_input_dict_into_new
 
 
 def _to_regular_dict_recursive_copy(input_dict: dict = None) -> dict:
@@ -32,7 +32,7 @@ def _preview_single_entry(key: str, value) -> str:
 
 
 def _preview_message(input_dict: dict = None):
-	input_dict = _to_regular_dict_recursive_copy(_verify_input_dict(input_dict))
+	input_dict = _to_regular_dict_recursive_copy(_verify_input_dict_into_new(input_dict))
 	parts: _t.List[str] = [
 		_preview_single_entry(k, v) for k, v in input_dict.items()
 	]
