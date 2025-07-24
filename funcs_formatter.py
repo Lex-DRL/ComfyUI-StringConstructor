@@ -7,7 +7,7 @@ import typing as _t
 
 import sys as _sys
 
-from .funcs_common import _show_text_on_node, _verify_input_dict
+from .funcs_common import _show_text_on_node, _verify_input_dict_into_new
 
 
 _RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 10)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️
@@ -45,7 +45,7 @@ def formatter(
 	template: str, recursive: bool = False, format_dict: _t.Dict[str, _t.Any] = None,
 	show: bool = True, unique_id: str = None
 ) -> _t.Tuple[str]:
-	format_dict = _verify_input_dict(format_dict)
+	format_dict = _verify_input_dict_into_new(format_dict)
 	if not isinstance(template, str):
 		raise TypeError(f"Not a string: {template!r}")
 

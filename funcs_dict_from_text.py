@@ -8,7 +8,7 @@ import typing as _t
 from frozendict import frozendict as _frozendict, deepfreeze as _deepfreeze
 
 from .enums import T as _T
-from .funcs_common import _show_text_on_node, _raise_from_errors_dict, _validate_key, _verify_input_dict
+from .funcs_common import _show_text_on_node, _raise_from_errors_dict, _validate_key, _verify_input_dict_into_new
 
 
 def _return_line_raw(line_raw: str, line_stripped:str) -> str:
@@ -61,7 +61,7 @@ def parse_dict_from_text(
 	multiline_str: str, strip_lines=True,
 	show: bool = True, in_dict: _t.Dict[str, _T] = None, unique_id: str = None
 ) -> _t.Tuple[_t.Dict[str, _T]]:
-	out_dict: _t.Dict[str, _T] = _verify_input_dict(in_dict)
+	out_dict: _t.Dict[str, _T] = _verify_input_dict_into_new(in_dict)
 
 	errors_dict: _t.Dict[_t.Any, str] = dict()
 	new_dict: _t.Dict[str, str] = {

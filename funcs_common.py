@@ -60,13 +60,15 @@ def _raise_from_errors_dict(
 	raise KeyError(msg)
 
 
-def _verify_input_dict(input_dict: _t.Dict[str, _T] = None) -> _t.Dict[str, _T]:
+def _verify_input_dict(input_dict: _t.Dict[str, _T] = None, error_if_none=False):
 	"""
 	Verify input dict to have only valid keys. Raises errors if invalid ones found.
-	Always returns a new dict instance (shallow copy if non-empty dict passed).
 	"""
 	if input_dict is None:
-		return dict()
+		if error_if_none:
+			raise TypeError("No input-dict")
+		return
+
 	if not isinstance(input_dict, dict):
 		raise TypeError(f"Input-dict isn't a dict. Got: {input_dict!r}")
 
@@ -78,4 +80,14 @@ def _verify_input_dict(input_dict: _t.Dict[str, _T] = None) -> _t.Dict[str, _T]:
 		errors_dict,
 		"Invalid input-dict:\n{}", "Invalid keys (string names) in input-dict:\n{}"
 	)
+
+
+def _verify_input_dict_into_new(input_dict: _t.Dict[str, _T] = None) -> _t.Dict[str, _T]:
+	"""
+	Verify input dict to have only valid keys. Raises errors if invalid ones found.
+	Always returns a new dict instance (shallow copy if non-empty dict passed).
+	"""
+	if input_dict is None:
+		return dict()
+	_verify_input_dict(input_dict)
 	return dict(input_dict)

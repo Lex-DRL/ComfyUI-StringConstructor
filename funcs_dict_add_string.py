@@ -8,7 +8,7 @@ import typing as _t
 from frozendict import deepfreeze as _deepfreeze
 
 from .enums import T as _T
-from .funcs_common import _raise_from_errors_dict, _validate_key, _verify_input_dict
+from .funcs_common import _raise_from_errors_dict, _validate_key, _verify_input_dict_into_new
 
 
 def set_dict_string(
@@ -16,7 +16,7 @@ def set_dict_string(
 	# unique_id: str = None,
 ) -> _t.Tuple[_t.Dict[str, _t.Union[_T, str]]]:
 	"""Update/append a string to the dict."""
-	out_dict: _t.Dict[str, _t.Union[_T, str]] = _verify_input_dict(in_dict)
+	out_dict: _t.Dict[str, _t.Union[_T, str]] = _verify_input_dict_into_new(in_dict)
 	errors_dict: _t.Dict[_t.Any, str] = dict()
 	name = _validate_key(name, errors_dict)
 	_raise_from_errors_dict(errors_dict)
