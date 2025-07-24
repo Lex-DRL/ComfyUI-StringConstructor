@@ -1,7 +1,7 @@
 [project]
 name = "string-constructor"
 description = "String formatting (compiling text from pieces) made for humans:\n• Turn parts of prompt into a dictionary - to share them all across the entire workflow as a single connection.\n• Compose your prompt in-place from these snippets and regular text - with just one text field.\n• Easily update the dictionary down the line - get different prompts from the same template.\n• Reference text chunks within each other to build complex hierarchies of self-updating prompts.\n• A true time-saver for regional prompting (aka area composition)."
-version = "1.0.1"
+version = "1.0.2"
 authors = [
   {name = "Lex Darlog"}
 ]
