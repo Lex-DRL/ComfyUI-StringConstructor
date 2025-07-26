@@ -52,7 +52,7 @@ class StringConstructorDictFromText:
 	OUTPUT_NODE = True  # Just to show the status message even if not connected to anything
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_TYPES = (str(_DataTypes.DICT), )
 	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 

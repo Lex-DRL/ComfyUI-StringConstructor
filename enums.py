@@ -35,4 +35,4 @@ class DataTypes(__BaseEnum):
 
 	@classmethod
 	def input_dict(cls, *_dicts: _t.Dict[str, T], **kwargs: T) -> _t.Tuple[_t.Union['DataTypes', str], _t.Dict[str, T]]:
-		return cls.DICT, cls.__custom_input_type_dict(_dicts, kwargs)
+		return str(cls.DICT), cls.__custom_input_type_dict(_dicts, kwargs)

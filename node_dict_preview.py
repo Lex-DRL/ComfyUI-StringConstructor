@@ -37,7 +37,7 @@ class StringConstructorDictPreview:
 	OUTPUT_NODE = True
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_TYPES = (str(_DataTypes.DICT), )
 	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 
