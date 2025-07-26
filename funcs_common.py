@@ -7,9 +7,11 @@ import typing as _t
 
 import re as _re
 
+from frozendict import deepfreeze as _deepfreeze
+
 from server import PromptServer as _PromptServer
 
-from .enums import T as _T
+from .enums import T as _T, T2 as _T2
 
 
 def _show_text_on_node(text: str = None, unique_id: str = None):
@@ -48,7 +50,7 @@ def _validate_key(key: str, errors_dict: _t.Dict[_t.Any, str]) -> _t.Union[str, 
 def _raise_from_errors_dict(
 	errors_dict: _t.Dict[_t.Any, str],
 	single_error_format: str = '{}',
-	multi_errors_format: str = "Invalid keys (string names):\n{}",
+	multi_errors_format: str = "Invalid keys (string names): {}",
 ):
 	if not errors_dict:
 		return
@@ -56,7 +58,7 @@ def _raise_from_errors_dict(
 	if len(errors_dict) == 1:
 		msg = single_error_format.format(next(iter(errors_dict.values())))
 	else:
-		msg = multi_errors_format.format('\n'.join(repr(x) for x in errors_dict.keys()))
+		msg = multi_errors_format.format(', '.join(repr(x) for x in errors_dict.keys()))
 	raise KeyError(msg)
 
 
@@ -78,7 +80,7 @@ def _verify_input_dict(input_dict: _t.Dict[str, _T] = None, error_if_none=False)
 
 	_raise_from_errors_dict(
 		errors_dict,
-		"Invalid input-dict:\n{}", "Invalid keys (string names) in input-dict:\n{}"
+		"Invalid input-dict: {}", "Invalid keys (string names) in input-dict: {}"
 	)
 
 
@@ -91,3 +93,38 @@ def _verify_input_dict_into_new(input_dict: _t.Dict[str, _T] = None) -> _t.Dict[
 		return dict()
 	_verify_input_dict(input_dict)
 	return dict(input_dict)
+
+
+def _new_updated_dict(
+	input_dict: _t.Union[_t.Dict[str, _T], None], *updating_dicts: _t.Dict[str, _T2],
+	sort=True, frozen=True, validate_new_keys=True
+) -> _t.Dict[str, _t.Union[_T, _T2]]:
+	"""Return a new dict being a union of the input one and the new (updating) ones."""
+	out_dict: _t.Dict[str, _t.Union[_T, _T2]] = _verify_input_dict_into_new(input_dict)
+
+	if validate_new_keys:
+		errors_dict: _t.Dict[_t.Any, str] = dict()
+		for upd_d in updating_dicts:
+			upd_d = dict(upd_d)
+			for key in list(upd_d.keys()):
+				val = upd_d.pop(key)
+				key = _validate_key(key, errors_dict)
+				upd_d[key] = val
+			out_dict.update(upd_d)
+		_raise_from_errors_dict(errors_dict)
+	else:
+		for upd_d in updating_dicts:
+			out_dict.update(upd_d)
+
+	if sort:
+		out_dict = {k: v for k, v in sorted(out_dict.items())}  # rely on implied ordered dicts in newer py3 versions
+	return _deepfreeze(out_dict) if frozen else out_dict
+
+
+def _new_dict_with_updated_key(
+	input_dict: _t.Union[_t.Dict[str, _T], None], key: str, value: _T2, sort=True, frozen=True, validate_key=True
+) -> _t.Dict[str, _t.Union[_T, _T2]]:
+	"""Return a new dict being a union of the input one and the new (updating) key/value."""
+	return _new_updated_dict(
+		input_dict, {key: value}, sort=sort, frozen=frozen, validate_new_keys=validate_key
+	)

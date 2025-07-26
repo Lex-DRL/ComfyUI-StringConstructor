@@ -12,6 +12,7 @@ except ImportError:
 
 
 T = _t.TypeVar('T')
+T2 = _t.TypeVar('T2')
 
 
 class __BaseEnum(_StrEnum):
