@@ -1,9 +1,7 @@
 ## `TODO`
 
-The pack has already started to sip into dictionary-editing domain. Only the validator and the actual formatting node needs to stay. The rest need to go to their own repo.
-
-- ~~Multi-item nodes.~~
-- ~~Bulk `Search & Replace` within **keys** in dictionary.~~
+The pack is feature-complete.
+No other features planned. To do some fancy stuff with dictionaries, specialized node packs are recommended instead.
 
 # v1.0.3
 
