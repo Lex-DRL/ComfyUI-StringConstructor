@@ -70,7 +70,7 @@ It's quite simple in principle yet the most powerful feature of the pack.
 
 When formatting the string, you can let chunks reference each other, which unlocks immense possibilities - like building entire **HIERARCHIES** of descriptions with various granularity (tailored for different resolutions) or even conditional string formatting for the most advanced users.
 
-![image](img/recursive_screenshot.png)
+![image](img/recursive_screenshot_v2.png)
 
 > [!WARNING]
 > Remember that with great power comes great responsibility!
