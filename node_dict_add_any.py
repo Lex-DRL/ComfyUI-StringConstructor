@@ -13,9 +13,11 @@ from comfy.comfy_types.node_typing import IO as _IO
 from . import _meta
 from .docstring_formatter import format_docstring as _format_docstring
 from .enums import DataTypes as _DataTypes
-from .funcs_dict_add_any import set_dict_any_type_item as _set_dict_any_type_item
+from .funcs_common import _new_dict_with_updated_key
 from .node_dict_add_string import _input_types as _input_types_str
 
+
+_dict = dict
 
 # A tiny optimization by reusing the same immutable dict:
 _input_types = _deepfreeze({
@@ -42,7 +44,7 @@ class StringConstructorDictAddAny:
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_TYPES = (str(_DataTypes.DICT), )
 	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 
@@ -50,9 +52,14 @@ class StringConstructorDictAddAny:
 	def INPUT_TYPES(cls):
 		return _input_types
 
+	@staticmethod
 	def main(
-		self, name: str, value: _t.Any = None,
-		dict: _t.Dict[str, _t.Any] = None,
+		name: str, dict: _t.Dict[str, _t.Any] = None, value: _t.Any = None,
 		# unique_id: str = None,
-	):
-		return _set_dict_any_type_item(name, value, in_dict=dict)
+	) -> _t.Tuple[_t.Dict[str, _t.Any]]:
+		"""Update/append an item of any type to the dict."""
+		if value is None:
+			if dict is None:
+				dict = _dict()
+			return (dict, )  # No need to create another dict instance if we add nothing
+		return (_new_dict_with_updated_key(dict, name, value), )

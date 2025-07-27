@@ -5,6 +5,11 @@ The pack has already started to sip into dictionary-editing domain. Only the val
 - ~~Multi-item nodes.~~
 - ~~Bulk `Search & Replace` within **keys** in dictionary.~~
 
+# v1.0.3
+
+- [fix] Nodes made compatible with built-in preview nodes.
+- Some internal refactoring/cleanup.
+
 # v1.0.2
 
 - New node: `Validate Format-Dict`

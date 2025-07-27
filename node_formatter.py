@@ -5,6 +5,7 @@
 import typing as _t
 
 from inspect import cleandoc as _cleandoc
+import sys as _sys
 
 from frozendict import deepfreeze as _deepfreeze
 
@@ -13,10 +14,44 @@ from comfy.comfy_types.node_typing import IO as _IO
 from . import _meta
 from .docstring_formatter import format_docstring as _format_docstring
 from .enums import DataTypes as _DataTypes
-from .funcs_formatter import formatter as _formatter
+from .funcs_common import _show_text_on_node, _verify_input_dict
+# from .funcs_formatter import formatter as _formatter
 
 
-# A tiny optimization by reusing the same immutable dict:
+_RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️
+
+
+def _recursive_format(template: str, format_dict: _t.Dict[str, _t.Any], show: bool = True, unique_id: str = None) -> str:
+	"""
+	It's not actually recursive - because, you know, any recursion could be turned into iteration,
+	and good boys do that. 😊
+	"""
+	assert isinstance(_RECURSION_LIMIT, int) and _RECURSION_LIMIT > 0
+
+	prev: str = ''
+	new: str = template
+	for i in range(_RECURSION_LIMIT):
+		if prev == new:
+			break
+		prev = new
+		new = new.format_map(format_dict)
+	if prev == new:
+		return new
+
+	msg = (
+		f"Recursion limit ({_RECURSION_LIMIT}) reached on attempt to format a string: {template!r}\n"
+		f"Last two formatting attempts:\n{prev!r}\n{new!r}"
+	)
+	if show and unique_id:
+		_show_text_on_node(msg, unique_id)
+	raise RecursionError(msg)
+	# noinspection PyUnreachableCode
+	return ''  # just to be safe
+
+# --------------------------------------
+
+_dict = dict
+
 _input_types = _deepfreeze({
 	'required': {
 		'template': (_IO.STRING, {'multiline': True, 'tooltip': (
@@ -69,9 +104,22 @@ class StringConstructorFormatter:
 	def INPUT_TYPES(cls):
 		return _input_types
 
+	@staticmethod
 	def main(
-		self, template: str, recursive_format: bool, show_status: bool,
-		dict: _t.Dict[str, _t.Any] = None,
-		unique_id: str = None,
-	):
-		return _formatter(template, recursive_format, dict, show=show_status, unique_id=unique_id)
+		template: str, recursive_format: bool = False, show_status: bool = False, dict: _t.Dict[str, _t.Any] = None,
+		unique_id: str = None
+	) -> _t.Tuple[str]:
+		if dict is None:
+			dict = _dict()
+		_verify_input_dict(dict)
+		if not isinstance(template, str):
+			raise TypeError(f"Not a string: {template!r}")
+
+		out_text = (
+			_recursive_format(template, dict, show_status, unique_id)
+			if recursive_format
+			else template.format_map(dict)
+		)
+		if show_status and unique_id:
+			_show_text_on_node(out_text, unique_id)
+		return (out_text, )

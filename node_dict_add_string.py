@@ -13,7 +13,7 @@ from comfy.comfy_types.node_typing import IO as _IO
 from . import _meta
 from .docstring_formatter import format_docstring as _format_docstring
 from .enums import DataTypes as _DataTypes
-from .funcs_dict_add_string import set_dict_string as _set_dict_string
+from .funcs_common import _new_dict_with_updated_key, _T
 
 
 # A tiny optimization by reusing the same immutable dict:
@@ -44,7 +44,7 @@ class StringConstructorDictAddString:
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
 
 	FUNCTION = 'main'
-	RETURN_TYPES = (_DataTypes.DICT, )
+	RETURN_TYPES = (str(_DataTypes.DICT), )
 	RETURN_NAMES = (_DataTypes.DICT.lower(), )
 	# OUTPUT_TOOLTIPS = tuple()
 
@@ -52,9 +52,16 @@ class StringConstructorDictAddString:
 	def INPUT_TYPES(cls):
 		return _input_types
 
+	@staticmethod
 	def main(
-		self, name: str, cleanup: bool, string: str,
-		dict: _t.Dict[str, _t.Any] = None,
+		name: str, cleanup: bool, string: str,
+		dict: _t.Dict[str, _T] = None,
 		# unique_id: str = None,
-	):
-		return _set_dict_string(name, string, strip_lines=cleanup, in_dict=dict)
+	) -> _t.Tuple[_t.Dict[str, _t.Union[_T, str]]]:
+		"""Update/append a string to the dict."""
+		string = '' if string is None else str(string)
+		if cleanup:
+			string = '\n'.join(
+				x.strip() for x in string.splitlines()
+			)
+		return (_new_dict_with_updated_key(dict, name, string), )
