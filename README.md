@@ -13,7 +13,7 @@ There's already a plenty of string-formatting nodes for ComfyUI. But this node p
 - Build your dictionary of available text chunks once. Pass it further as a single line (bus/pipe design).
 - Easily reuse these sub-strings to build many variations of a prompt as needed.
 - It's especially handy for regional prompting (aka area composition).
-- [<img src="img/recursive_toggle.png" height="24" />](#recursive-formatting)
+- [❗ Recursive formatting support](#recursive-formatting-)
 - ...
 - PROFIT!
 
@@ -64,7 +64,7 @@ The way you "paste" values from the dictionary into your text template is called
 > 
 > So any formatting patterns are available (like `{float_value:.3f}`) + `Add ANY to Format-Dict` node is there for exactly that.
 
-### Recursive formatting
+### Recursive formatting <img src="img/recursive_toggle.png" height="24" />
 
 It's quite simple in principle yet the most powerful feature of the pack.
 
