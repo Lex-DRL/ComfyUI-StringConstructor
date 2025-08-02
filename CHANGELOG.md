@@ -6,6 +6,7 @@ No other features planned. To do some fancy stuff with dictionaries, specialized
 # v1.0.4
 
 - All the secondary dict-related nodes are moved to a subcategory.
+- Default node name shortened: `Format-Dict` → just `Dict`.
 
 # v1.0.3
 

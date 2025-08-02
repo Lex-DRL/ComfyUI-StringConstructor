@@ -20,12 +20,12 @@ NODE_CLASS_MAPPINGS: _t.Dict[str, type] = {
 	'StringConstructorValidateKeys': StringConstructorValidateKeys,
 }
 NODE_DISPLAY_NAME_MAPPINGS: _t.Dict[str, str] = {
-	'StringConstructorDictAddAny': "Add ANY to Format-Dict",
-	'StringConstructorDictAddString': "Add String to Format-Dict",
-	'StringConstructorDictFromText': "Format-Dict from Text",
-	'StringConstructorDictPreview': "Preview Format-Dict",
+	'StringConstructorDictAddAny': "Add ANY to Dict",
+	'StringConstructorDictAddString': "Add String to Dict",
+	'StringConstructorDictFromText': "Dict from Text",
+	'StringConstructorDictPreview': "Preview Dict",
 	'StringConstructorFormatter': "String Formatter",
-	'StringConstructorValidateKeys': "Validate Format-Dict",
+	'StringConstructorValidateKeys': "Validate Dict",
 }
 
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']

@@ -77,16 +77,16 @@ When formatting the string, you can let chunks reference each other, which unloc
 > 
 > With a sloppy use, you can create chunks that cross-reference each other in an infinite loop. The node will error out after reaching a high level of recursion (about 1k), so you're safe. But still, you've been warned!
 
-## Supporting nodes for Dictionaries
+## Helper nodes for Dictionaries
 
 At this point it should be clear that most of the work would be done around preparing the dictionary to use.
 
 The pack provides some utility nodes to build such dict:
-- `Format-Dict from Text` - **this node would be enough 99% of the time**. It parses a single wall of text and splits it into chunks at empty lines. The first line in each chunk is extracted as key, the rest of the chunk (including new lines, if text continues) is the actual text of this chunk.
-- `Add String to Format-Dict` - similar, but adds only one entry. Useful when you need a value or a key of the dictionary entry to come as input connection from somewhere else.
-- `Add ANY to Format-Dict (Advanced)` similar, but for advanced formatting. It allows you to add not only a string, but literally anything (float, int, etc). The key still must follow the same restrictions.
+- `Dict from Text` - **this node would be enough 99% of the time**. It parses a single wall of text and splits it into chunks at empty lines. The first line in each chunk is extracted as key, the rest of the chunk (including new lines, if text continues) is the actual text of this chunk.
+- `Add String to Dict` - similar, but adds only one entry. Useful when you need a value or a key of the dictionary entry to come as input connection from somewhere else.
+- `Add ANY to Dict` similar, but for advanced formatting. It allows you to add not only a string, but literally anything (float, int, etc). The key still must follow the same restrictions.
 - Any of these nodes can take another dictionary as input - then they extend/update it.
-- `Validate Format-Dict` - a node that ensures that all the keys in the dictionary are named properly. Useful if you build the dictionary with nodes from other packs (see below) and want to ensure that everything is fine - before passing the dictionary down the line.
+- `Validate Dict` - a node that ensures that all the keys in the dictionary are named properly. Useful if you build the dictionary with nodes from other packs (see below) and want to ensure that everything is fine - before passing the dictionary down the line.
 - You can design your dict to be intended for updating down the line. Change some keys → get a different prompt with the same template (for example, a more detailed description of a character).
 - Don't forget that with recursive formatting, template itself could be a part of the dictionary, too!
 
@@ -95,9 +95,9 @@ These bundled nodes should be enough to start your journey. If you need to do a 
 - [Eugene's Nodes](https://github.com/JEONG-JIWOO/ComfyUI_Eugene_Nodes)
 - [WAS Node Suite](https://github.com/ltdrdata/was-node-suite-comfyui). Note: this is a mega-pack, over-bloated to my taste. It has nodes to work with dictionaries, but also **A TON** of other unrelated stuff... and it's known to have dependencies conflicting with other custom nodes.
 
-## Supporting nodes for Preview
+## Helper nodes for Preview
 
-To debug the dictionary you build, there's a `Preview Format-Dict` node.
+To debug the dictionary you build, there's a `Preview Dict` node.
 
 You might also look into the built-in `Preview Any` node.
 
