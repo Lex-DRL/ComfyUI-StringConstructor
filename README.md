@@ -86,6 +86,7 @@ The pack provides some utility nodes to build such dict:
 - `Add String to Dict` - similar, but adds only one entry. Useful when you need a value or a key of the dictionary entry to come as input connection from somewhere else.
 - `Add ANY to Dict` similar, but for advanced formatting. It allows you to add not only a string, but literally anything (float, int, etc). The key still must follow the same restrictions.
 - Any of these nodes can take another dictionary as input - then they extend/update it.
+- `Extract String from Dict` - the opposite: extract a single string from the dict. With it, you can extract a single element to modify it - and put an updated version back to the dict. Technically, the same could be accomplished with the main `String Formatter` node, but this one is more compact.
 - `Validate Dict` - a node that ensures that all the keys in the dictionary are named properly. Useful if you build the dictionary with nodes from other packs (see below) and want to ensure that everything is fine - before passing the dictionary down the line.
 - You can design your dict to be intended for updating down the line. Change some keys → get a different prompt with the same template (for example, a more detailed description of a character).
 - Don't forget that with recursive formatting, template itself could be a part of the dictionary, too!

@@ -23,7 +23,7 @@ _dict = dict
 _input_types = _deepfreeze({
 	'required': {
 		'name': (_IO.STRING, {'tooltip': (
-			"Name of the non-string item inserted into the dict. "
+			"Name (key) of the non-string item inserted into the dict. "
 			"It must comprise only of latin letters, digits and underscores + it can't start with a digit."
 		)}),
 	},

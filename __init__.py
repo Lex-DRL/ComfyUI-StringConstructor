@@ -6,6 +6,7 @@ import typing as _t
 
 from .node_dict_add_any import StringConstructorDictAddAny
 from .node_dict_add_string import StringConstructorDictAddString
+from .node_dict_key_extract import StringConstructorDictExtractString
 from .node_dict_from_text import StringConstructorDictFromText
 from .node_dict_preview import StringConstructorDictPreview
 from .node_formatter import StringConstructorFormatter
@@ -14,6 +15,7 @@ from .node_validate_keys import StringConstructorValidateKeys
 NODE_CLASS_MAPPINGS: _t.Dict[str, type] = {
 	'StringConstructorDictAddAny': StringConstructorDictAddAny,
 	'StringConstructorDictAddString': StringConstructorDictAddString,
+	'StringConstructorDictExtractString': StringConstructorDictExtractString,
 	'StringConstructorDictFromText': StringConstructorDictFromText,
 	'StringConstructorDictPreview': StringConstructorDictPreview,
 	'StringConstructorFormatter': StringConstructorFormatter,
@@ -22,6 +24,7 @@ NODE_CLASS_MAPPINGS: _t.Dict[str, type] = {
 NODE_DISPLAY_NAME_MAPPINGS: _t.Dict[str, str] = {
 	'StringConstructorDictAddAny': "Add ANY to Dict",
 	'StringConstructorDictAddString': "Add String to Dict",
+	'StringConstructorDictExtractString': "Extract String from Dict",
 	'StringConstructorDictFromText': "Dict from Text",
 	'StringConstructorDictPreview': "Preview Dict",
 	'StringConstructorFormatter': "String Formatter",
