@@ -20,7 +20,7 @@ from .funcs_common import _new_dict_with_updated_key, _T
 _input_types = _deepfreeze({
 	'required': {
 		'name': (_IO.STRING, {'tooltip': (
-			"Name of the substring inserted into the dict. "
+			"Name (key) of the substring inserted into the dict. "
 			"It must comprise only of latin letters, digits and underscores + it can't start with a digit."
 		)}),
 		'cleanup': (_IO.BOOLEAN, {'default': True, 'label_on': 'leading/trailing spaces', 'label_off': 'no', 'tooltip': (
@@ -40,7 +40,7 @@ _input_types = _deepfreeze({
 class StringConstructorDictAddString:
 	"""Add/update a string to the Format-Dict."""
 	NODE_NAME = 'StringConstructorDictAddString'
-	CATEGORY = _meta.category
+	CATEGORY = _meta.category_dict
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
 
 	FUNCTION = 'main'

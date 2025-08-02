@@ -1,7 +1,13 @@
 ## `TODO`
 
-The pack is feature-complete.
+The pack is considered feature-complete.
 No other features planned. To do some fancy stuff with dictionaries, specialized node packs are recommended instead.
+
+# v1.0.4
+
+- All the secondary dict-related nodes are moved to a subcategory.
+- Default node name shortened: `Format-Dict` → just `Dict`.
+- New node: `Extract String from Dict` - to be actually self-sufficient for the common use cases.
 
 # v1.0.3
 

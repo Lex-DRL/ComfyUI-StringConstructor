@@ -4,3 +4,4 @@ Metadata-related module.
 """
 
 category: str = "String Constructor"
+category_dict: str = f"{category}/Format-Dict"

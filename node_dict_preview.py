@@ -63,7 +63,7 @@ class StringConstructorDictPreview:
 	Show the contents of a Format-Dict.
 	"""
 	NODE_NAME = 'StringConstructorDictPreview'
-	CATEGORY = _meta.category
+	CATEGORY = _meta.category_dict
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
 
 	OUTPUT_NODE = True
