@@ -3,6 +3,10 @@
 The pack is considered feature-complete.
 No other features planned. To do some fancy stuff with dictionaries, specialized node packs are recommended instead.
 
+# v1.0.4
+
+- All the secondary dict-related nodes are moved to a subcategory.
+
 # v1.0.3
 
 - [fix] Nodes made compatible with built-in preview nodes.

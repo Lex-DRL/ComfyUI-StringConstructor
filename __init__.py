@@ -20,7 +20,7 @@ NODE_CLASS_MAPPINGS: _t.Dict[str, type] = {
 	'StringConstructorValidateKeys': StringConstructorValidateKeys,
 }
 NODE_DISPLAY_NAME_MAPPINGS: _t.Dict[str, str] = {
-	'StringConstructorDictAddAny': "Add ANY to Format-Dict (Advanced)",
+	'StringConstructorDictAddAny': "Add ANY to Format-Dict",
 	'StringConstructorDictAddString': "Add String to Format-Dict",
 	'StringConstructorDictFromText': "Format-Dict from Text",
 	'StringConstructorDictPreview': "Preview Format-Dict",

@@ -40,7 +40,7 @@ _input_types = _deepfreeze({
 class StringConstructorDictAddAny:
 	"""Add/update a non-string item to the Format-Dict - to do some advanced formatting."""
 	NODE_NAME = 'StringConstructorDictAddAny'
-	CATEGORY = _meta.category
+	CATEGORY = _meta.category_dict
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
 
 	FUNCTION = 'main'

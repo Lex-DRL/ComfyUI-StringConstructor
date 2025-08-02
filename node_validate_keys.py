@@ -31,7 +31,7 @@ class StringConstructorValidateKeys:
 	but it might be handy to verify the dict right after it's created.
 	"""
 	NODE_NAME = 'StringConstructorValidateKeys'
-	CATEGORY = _meta.category
+	CATEGORY = _meta.category_dict
 	DESCRIPTION = _format_docstring(_cleandoc(__doc__))
 
 	OUTPUT_NODE = True
