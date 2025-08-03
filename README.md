@@ -17,7 +17,7 @@ There's already a plenty of string-formatting nodes for ComfyUI. But this node p
 - ...
 - PROFIT!
 
-![image](img/screenshot1.png)
+![screenshot1](img/screenshot1.png)
 
 ## The main `String Formatter` node
 
@@ -42,7 +42,7 @@ For example, in the screenshot shown above, this is the dictionary we get in the
 
 And then, we can do **this** with the same input dictionary:
 
-![image](img/screenshot2.png)
+![screenshot2](img/screenshot2.png)
 
 > [!NOTE]
 > The `BREAK` keyword shown here isn't natively supported by Comfy's `CLIP Text Encode`. But you can use [`CLIPTextEncode with BREAK syntax`](https://github.com/dfl/comfyui-clip-with-break) or [`CLIP Text Encode++` from smZNodes](https://github.com/shiimizu/ComfyUI_smZNodes) (if you want to fully switch from Comfy's to A1111's way of encoding text).
@@ -67,7 +67,7 @@ When formatting the string, you can let chunks reference each other, which unloc
 - You can design your dict to be intended for updating down the line. Change some keys → get a different prompt with the same template (for example, a more detailed description of a character).
 - Don't forget that with recursive formatting, [template itself could be a part of the dictionary](#pattern-as-part-of-the-dictionary), too!
 
-![image](img/recursive_screenshot_v2.png)
+![recursive_screenshot_v2](img/recursive_screenshot_v2.png)
 
 > [!WARNING]
 > Remember that with great power comes great responsibility!
@@ -106,6 +106,56 @@ Alternatively, [Crystools](https://github.com/crystian/ComfyUI-Crystools) pack h
 With [Recursive formatting](#recursive-formatting-), nothing stops you from putting the template itself into the dictionary, too. You can even have both your prompts there (positive/negative), and you unpack them with a couple of `String Formatter` nodes _(with their only text being something like `{pos_template}` / `{neg_template}`)_,  just before KSampler.
 
 This single possibility can **drastically** change your approach to workflow creation. Since building a prompt for a specific KSampler becomes effectively free (with a properly configured dictionary) and string-formatting/text-encoding is almost free, too - you no longer need passing spaghetti of your pre-encoded conditionings all across your workflow. Instead, you just build them in-place by simply setting a couple of "special" keys to the desired toggle-like values, and pass only your all-in-one dictionary itself.
+
+#### A negative prompt example
+
+![neg_recursive_example](img/neg_recursive_example.png)
+
+Try it yourself:
+
+```
+bad_quality
+(worst quality:1.2), (low quality:1.2), (normal quality:1.2), lowres
+
+bad_anatomy_short
+bad anatomy
+
+bad_anatomy_extra
+ugly, unnatural body, error
+
+bad_anatomy_long
+{bad_anatomy_short}, {bad_anatomy_extra}
+
+bad_hands_short
+bad hands
+
+bad_hands_extra
+extra finger, missing fingers
+
+bad_hands_long
+{bad_hands_short}, {bad_anatomy_long}, {bad_hands_extra}
+
+bad_eyes_short
+imperfect eyes, skewed eyes
+
+bad_face_short
+{bad_eyes_short}, unnatural face
+
+bad_face_long
+{bad_face_short}, {bad_anatomy_long}
+
+bad_limbs_short
+extra limb, missing limbs
+
+bad_human_long
+{bad_anatomy_short}, {bad_hands_short}, {bad_face_short}, {bad_anatomy_extra}, {bad_limbs_short}
+
+watermark
+signature, watermarks
+
+neg_common
+{bad_quality}, {watermark}, {bad_human_long}
+```
 
 ### When you need curly braces themselves
 
