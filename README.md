@@ -51,7 +51,7 @@ And then, we can do **this** with the same input dictionary:
 ### String-Formatting syntax
 
 The way you "paste" values from the dictionary into your text template is called "string formatting". Its syntax is very simple:
-- You just put your `{key_name}` inside curly braces (no spaces between) - and voila! When the prompt template gets formatted, this pattern will be replaced with the actual sub-string.
+- You just put your `{key_name}` inside curly braces (no spaces between) - and voila! When the prompt template gets formatted, this pattern will be replaced with the actual sub-string from the dict.
   - For your convenience, the string-formatting node itself can show the actual output.
 - Also keep in mind, that while naming your sub-strings, you must follow the same restrictions python imposes on any variable names: only ASCII letters, digits and underscore are allowed + the name can't start with a digit. So:
   - ✅ `valid_name`, `_other_valid_name_`, `YetAnother_ValidName___`, `name4`.
@@ -79,10 +79,10 @@ When formatting the string, you can let chunks reference each other, which unloc
 At this point it should be clear that most of the work would be done around preparing the dictionary to use.
 
 The pack provides some utility nodes to build such dict:
-- `Dict from Text` - **this node would be enough 99% of the time**. It parses a single wall of text and splits it into chunks at empty lines. The first line in each chunk is extracted as key, the rest of the chunk _(including any number of new lines, as long as they have some text)_ is the actual text of this chunk.
+- `Dict from Text` - **this node would be enough 99% of the time**. It parses a single wall of text and splits it into chunks at empty lines. The first line in each chunk is extracted as key, the rest of the chunk _(including any number of the following new lines, as long as they have some text)_ is the actual text of this chunk.
 - `Add String to Dict` - similar, but adds only one entry. Useful when you need a value or a key of the dictionary entry to come as input connection from somewhere else.
 - `Add ANY to Dict` similar, but for advanced formatting. It allows you to add not only a string, but literally anything (float, int, etc). The key still must follow the same restrictions.
-- Any of these nodes can take another dictionary as input - then they extend/update it.
+- Any of these nodes can take another dictionary as input - then they output the extended/updated dict.
 - `Extract String from Dict` - the opposite to `Add String to Dict`: extracts a single element. With these two nodes, you can extract a single string, modify it, and update the dict with the new version. Technically, the main `String Formatter` node can "extract" string, too - but this one is more compact.
 - `Validate Dict` - a node that ensures that all the keys in the dictionary are named properly. Useful if you build the dictionary with nodes from other packs (see below) and want to ensure that everything is fine - before passing the dictionary down the line.
 
@@ -183,6 +183,6 @@ At this point, your imagination is your only limit.
 
 ### Implementation details for programmers
 
-Internally, just a built-in `str.format_map()` is called with keyword arguments from the passed Format-Dict, which is literally just a dict _(and it's expected to have only string keys)_.
+Internally in the main `String Formatter` node, just a built-in `str.format_map()` is called with keyword arguments from the passed Format-Dict, which is literally just a dict _(and it's expected to have only string keys)_.
 
 So any "complex" formatting patterns are available, too (like `{float_value:.3f}`). `Add ANY to Format-Dict` node is there for exactly that.
