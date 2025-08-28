@@ -143,10 +143,10 @@ class StringConstructorFormatter:
 
 	@staticmethod
 	def main(
-		template: str, 
-		recursive_format: bool = False, 
+		template: str,
+		recursive_format: bool = False,
 		safe_mode: bool = True,
-		show_status: bool = False, 
+		show_status: bool = False,
 		dict: _t.Dict[str, _t.Any] = None,
 		unique_id: str = None
 	) -> _t.Tuple[str]:
