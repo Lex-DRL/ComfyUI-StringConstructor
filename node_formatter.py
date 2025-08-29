@@ -1,14 +1,16 @@
 # encoding: utf-8
 """
-Updated StringConstructorFormatter with template sanitization
+Code for ``StringConstructorFormatter`` node.
 """
 
 import typing as _t
-import re as _re
+
 from inspect import cleandoc as _cleandoc
+import re as _re
 import sys as _sys
 
 from frozendict import deepfreeze as _deepfreeze
+
 from comfy.comfy_types.node_typing import IO as _IO
 
 from . import _meta
@@ -16,7 +18,9 @@ from .docstring_formatter import format_docstring as _format_docstring
 from .enums import DataTypes as _DataTypes
 from .funcs_common import _show_text_on_node, _verify_input_dict
 
-_RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)
+
+_RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️
+
 
 def _safe_format(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
 	"""
@@ -34,6 +38,7 @@ def _safe_format(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
 		return str(format_dict[key])
 	
 	return _re.sub(pattern, replace_func, template)
+
 
 def _escape_unknown_brackets(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
 	"""
@@ -58,15 +63,21 @@ def _escape_unknown_brackets(template: str, format_dict: _t.Dict[str, _t.Any]) -
 	escaped_template = _re.sub(pattern, escape_func, template)
 	return escaped_template.format_map(format_dict)
 
-def _recursive_format_safe(template: str, format_dict: _t.Dict[str, _t.Any], show: bool = True, unique_id: str = None, use_safe_mode: bool = True) -> str:
+
+def _recursive_format_safe(
+	template: str, format_dict: _t.Dict[str, _t.Any],
+	show: bool = True, unique_id: str = None, use_safe_mode: bool = True
+) -> str:
 	"""
 	Safe recursive format that won't break on unknown curly brackets.
+
+	It's not actually recursive - because, you know, any recursion could be turned into iteration,
+	and good boys do that. 😊
 	"""
 	assert isinstance(_RECURSION_LIMIT, int) and _RECURSION_LIMIT > 0
 
 	prev: str = ''
 	new: str = template
-	
 	for i in range(_RECURSION_LIMIT):
 		if prev == new:
 			break
@@ -88,8 +99,11 @@ def _recursive_format_safe(template: str, format_dict: _t.Dict[str, _t.Any], sho
 	if show and unique_id:
 		_show_text_on_node(msg, unique_id)
 	raise RecursionError(msg)
+	# noinspection PyUnreachableCode
+	return ''  # just to be safe
 
-# Updated input types with new sanitization option
+# --------------------------------------
+
 _input_types = _deepfreeze({
 	'required': {
 		'template': (_IO.STRING, {'multiline': True, 'tooltip': (
@@ -118,14 +132,14 @@ _input_types = _deepfreeze({
 		)),
 	},
 	'hidden': {
-		'unique_id': 'UNIQUE_ID',
+		'unique_id': 'UNIQUE_ID',  # used for text display at the bottom of the node
 	},
 })
+
 
 class StringConstructorFormatter:
 	"""
 	Construct the formatted string from template and format-dictionary.
-	Now with safe handling of curly brackets that aren't format variables.
 	"""
 	NODE_NAME = 'StringConstructorFormatter'
 	CATEGORY = _meta.category
@@ -136,6 +150,7 @@ class StringConstructorFormatter:
 	FUNCTION = 'main'
 	RETURN_TYPES = (_IO.STRING, )
 	RETURN_NAMES = ('string', )
+	# OUTPUT_TOOLTIPS = tuple()
 
 	@classmethod
 	def INPUT_TYPES(cls):
@@ -150,11 +165,9 @@ class StringConstructorFormatter:
 		dict: _t.Dict[str, _t.Any] = None,
 		unique_id: str = None
 	) -> _t.Tuple[str]:
-		
 		if dict is None:
 			dict = {}
 		_verify_input_dict(dict)
-		
 		if not isinstance(template, str):
 			raise TypeError(f"Not a string: {template!r}")
 
@@ -168,5 +181,4 @@ class StringConstructorFormatter:
 		
 		if show_status and unique_id:
 			_show_text_on_node(out_text, unique_id)
-		
 		return (out_text, )
