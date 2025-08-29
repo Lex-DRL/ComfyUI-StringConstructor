@@ -37,10 +37,15 @@ def _safe_format(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
 		key = match.group(1)
 		return str(format_dict[key])
 	
-	return _re.sub(pattern, replace_func, template)
+	return _re.sub(pattern, replace_func, template)  # TODO: turn to a pre-compiled func
 
 
-def _escape_unknown_brackets(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
+_re_formatting_keyword_sub = _re.compile(  # Pre-compiled regex-replace func to find and replace {keyword} patterns
+	r'\{([^{}]*)\}'
+).sub
+
+
+def _escape_unknown_keywords(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
 	"""
 	Escape curly brackets that aren't format variables, then use normal format.
 	This approach preserves the original behavior for known variables.
@@ -49,23 +54,21 @@ def _escape_unknown_brackets(template: str, format_dict: _t.Dict[str, _t.Any]) -
 		# If no format dict, escape all curly brackets
 		return template.replace('{', '{{').replace('}', '}}')
 	
-	# Find all {word} patterns
-	pattern = r'\{([^{}]*)\}'
 	known_keys = set(format_dict.keys())
 	
-	def escape_func(match):
+	def escape_func(match: _re.Match[str]) -> str:  # TODO: extract to define only once (and not in the loop)
 		key = match.group(1)
 		if key in known_keys:
 			return match.group(0)  # Keep as is for formatting
 		else:
 			return '{{' + key + '}}'  # Escape unknown
 	
-	escaped_template = _re.sub(pattern, escape_func, template)
+	escaped_template = _re_formatting_keyword_sub(escape_func, template)
 	return escaped_template.format_map(format_dict)
 
 
 def _recursive_format_safe(
-	template: str, format_dict: _t.Dict[str, _t.Any], use_safe_mode: bool = True,
+	template: str, format_dict: _t.Dict[str, _t.Any], safe_mode: bool = True,
 	show: bool = True, unique_id: str = None
 ) -> str:
 	"""
@@ -76,18 +79,16 @@ def _recursive_format_safe(
 	"""
 	assert isinstance(_RECURSION_LIMIT, int) and _RECURSION_LIMIT > 0
 
+	# Avoid unnecessary conditions in the loop:
+	formatting_func = _safe_format if safe_mode else _escape_unknown_keywords  # TODO: the latter one doesn't actually format
+
 	prev: str = ''
 	new: str = template
 	for i in range(_RECURSION_LIMIT):
 		if prev == new:
 			break
 		prev = new
-		
-		if use_safe_mode:
-			new = _safe_format(new, format_dict)
-		else:
-			# Use the escape approach for compatibility with original behavior
-			new = _escape_unknown_brackets(new, format_dict)
+		new = formatting_func(new, format_dict)
 	
 	if prev == new:
 		return new
@@ -100,7 +101,7 @@ def _recursive_format_safe(
 		_show_text_on_node(msg, unique_id)
 	raise RecursionError(msg)
 	# noinspection PyUnreachableCode
-	return ''  # just to be safe
+	return ''  # just to be extra-safe, if RecursionError is treated as warning
 
 # --------------------------------------
 
@@ -177,7 +178,7 @@ class StringConstructorFormatter:
 			if safe_mode:
 				out_text = _safe_format(template, dict)
 			else:
-				out_text = _escape_unknown_brackets(template, dict)
+				out_text = _escape_unknown_keywords(template, dict)
 		
 		if show_status and unique_id:
 			_show_text_on_node(out_text, unique_id)
