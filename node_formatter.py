@@ -65,8 +65,8 @@ def _escape_unknown_brackets(template: str, format_dict: _t.Dict[str, _t.Any]) -
 
 
 def _recursive_format_safe(
-	template: str, format_dict: _t.Dict[str, _t.Any],
-	show: bool = True, unique_id: str = None, use_safe_mode: bool = True
+	template: str, format_dict: _t.Dict[str, _t.Any], use_safe_mode: bool = True,
+	show: bool = True, unique_id: str = None
 ) -> str:
 	"""
 	Safe recursive format that won't break on unknown curly brackets.
@@ -126,7 +126,7 @@ _input_types = _deepfreeze({
 		)}),
 	},
 	'optional': {
-		'dict': _DataTypes.input_dict(tooltip=(
+		'dict': _DataTypes.input_dict(tooltip=(  # It's not actually optional, but is here since there's no dict-widget
 			"The dictionary to take named sub-strings from. It could be left unconnected, if the pattern doesn't reference "
 			"any sub-strings - then, this node acts exactly the same as a regular string-primitive node."
 		)),
@@ -162,7 +162,7 @@ class StringConstructorFormatter:
 		recursive_format: bool = False,
 		safe_mode: bool = True,
 		show_status: bool = False,
-		dict: _t.Dict[str, _t.Any] = None,
+		dict: _t.Dict[str, _t.Any] = None,  #actually, required - but here to keep the declared params order
 		unique_id: str = None
 	) -> _t.Tuple[str]:
 		if dict is None:
@@ -172,7 +172,7 @@ class StringConstructorFormatter:
 			raise TypeError(f"Not a string: {template!r}")
 
 		if recursive_format:
-			out_text = _recursive_format_safe(template, dict, show_status, unique_id, safe_mode)
+			out_text = _recursive_format_safe(template, dict, safe_mode, show_status, unique_id)
 		else:
 			if safe_mode:
 				out_text = _safe_format(template, dict)
