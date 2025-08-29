@@ -42,7 +42,7 @@ def _rebuild_parsed_keyword(n_opening_brackets: int, inside_brackets: str, n_clo
 
 
 _re_formatting_keyword_sub = _re.compile(  # Pre-compiled regex-sub func to find and replace {keyword} patterns
-	'(\{+)([^{}]*)(\}+)'
+	r'(\{+)([^{}]*)(\}+)'
 	# TODO: Takes leading/trailing braces into account, but not nested ones. Maybe implement some day,
 	#  but it would require true parsing - with stack of braces, nested parts iterator, etc.
 ).sub
@@ -59,7 +59,7 @@ class _Formatter:
 
 	It's done this way to avoid extra conditions in the loop + to organize all the setup work in one place.
 	"""
-	format_dict: _t.Optional[_t.Dict[str, _t.Any], None] = None
+	format_dict: _t.Optional[_t.Dict[str, _t.Any]] = None
 
 	recursive: bool = False
 	safe: bool = True
@@ -88,8 +88,8 @@ class _Formatter:
 	def __escape_match(self, match: _re.Match[str]) -> str:
 		opening_brackets, inside_brackets, closing_brackets = match.groups()
 		if inside_brackets.strip() in self.format_dict:
-			n_opening = _n_brackets_after_escape_for_existing_key(opening_brackets)
-			n_closing = _n_brackets_after_escape_for_existing_key(closing_brackets)
+			n_opening = _n_brackets_after_escape_for_existing_key(len(opening_brackets))
+			n_closing = _n_brackets_after_escape_for_existing_key(len(closing_brackets))
 			return _rebuild_parsed_keyword(n_opening, inside_brackets, n_closing)
 		else:
 			return _rebuild_parsed_keyword(len(opening_brackets) * 2, inside_brackets, len(closing_brackets) * 2)
