@@ -5,7 +5,7 @@ Code for ``StringConstructorFormatter`` node.
 
 import typing as _t
 
-from functools import partial as _partial
+from dataclasses import dataclass as _dataclass
 from inspect import cleandoc as _cleandoc
 import re as _re
 import sys as _sys
@@ -22,105 +22,128 @@ from .funcs_common import _show_text_on_node, _verify_input_dict
 
 _RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️
 
-
-_t_esc_func = _t.Callable[[_re.Match[str]], str]
-
-
-def _build_match_escaping_func_for_re_sub(known_keys: _t.Iterable[str]) -> _t_esc_func:
-	"""Function factory: builds a replacing func for a specific set of dict keys - to be passed to ``re.sub()``."""
-	known_keys_set = set(known_keys)
-	assert all(isinstance(x, str) for x in known_keys_set), f"Dict keys should be pre-validated by now. Got: {known_keys_set!r}"
-
-	def escape_func(match: _re.Match[str]) -> str:
-		key = match.group(1)
-		if key in known_keys_set:
-			return match.group(0)  # Keep as is for formatting
-		else:
-			return '{{' + key + '}}'  # Escape unknown
-
-	return escape_func
-
-
-_re_formatting_keyword_sub = _re.compile(  # Pre-compiled regex-replace func to find and replace {keyword} patterns
+_re_formatting_keyword_sub = _re.compile(  # Pre-compiled regex-sub func to find and replace {keyword} patterns
 	r'\{([^{}]*)\}'  # TODO: this won't catch repeating braces. Account for that.
 ).sub
 
 
-def _escape_unknown_keywords(
-	template: str, format_dict: _t.Dict[str, _t.Any], match_escaping_func: _t_esc_func
-) -> str:
+@_dataclass
+class _Formatter:
 	"""
-	Escape curly brackets that aren't format variables, then use normal format.
-	This approach preserves the original behavior for known variables.
+	A callable (function-like) class, which does the actual formatting, while respecting all the options.
+
+	It's made as a class to split the formatting into two stages:
+	- First, the instance is properly initialized with the shared arguments (all the method overrides are made depending on options);
+	- Then, the actual instance is treated as a function - it needs to be called with the formatted string as the only argument.
+
+	It's done this way to avoid extra conditions in the loop + to organize all the setup work in one place.
 	"""
-	if not format_dict:
-		# If no format dict, escape all curly brackets
-		return template.replace('{', '{{').replace('}', '}}')
-	
-	escaped_template = _re_formatting_keyword_sub(match_escaping_func, template)
-	return escaped_template.format_map(format_dict)
+	format_dict: _t.Optional[_t.Dict[str, _t.Any], None] = None
 
-# --------------------------------------
+	recursive: bool = False
+	safe: bool = True
 
-def _safe_format(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
-	"""
-	Safe format that only replaces variables that exist in the dictionary.
-	Leaves other curly brackets untouched.
-	"""
-	if not format_dict:
-		return template
+	show_status: bool = True
+	unique_node_id: str = None
 
-	# Create pattern that matches {key} only for keys that exist in format_dict
-	pattern = r'\{(' + '|'.join(_re.escape(key) for key in format_dict.keys()) + r')\}'
+	def __post_init__(self):  # called by dataclass init
+		if self.format_dict is None:
+			self.format_dict = dict()
 
-	def replace_func(match):
+		format_dict = self.format_dict
+		_verify_input_dict(format_dict)
+		if not format_dict:
+			self.__escape_match = self.__escape_match_no_keys
+
+		# No need to override __escape_for_safe_format().
+		# Instead, recursive method defines local function, and simple method just checks self.safe mode.
+
+		self._format = self.__format_recursive if self.recursive else self.__format_simple
+
+	# @staticmethod
+	# def __dummy_return_intact(template: str) -> str:
+	# 	return template
+
+	def __escape_match(self, match: _re.Match[str]) -> str:
 		key = match.group(1)
-		return str(format_dict[key])
+		if key in self.format_dict:
+			return match.group(0)  # Keep as is for formatting
+		else:
+			return '{{' + key + '}}'  # Escape unknown
 
-	return _re.sub(pattern, replace_func, template)  # TODO: turn to a pre-compiled func
+	@staticmethod
+	def __escape_match_no_keys(match: _re.Match[str]) -> str:
+		key = match.group(1)
+		return '{{' + key + '}}'  # Escape unknown
 
+	def __escape_for_safe_format(self, template: str) -> str:
+		"""
+		Method to be called on template before the actual format - in safe mode.
 
-def _recursive_format_safe(
-	template: str, format_dict: _t.Dict[str, _t.Any], safe_mode: bool = True,
-	show: bool = True, unique_id: str = None
-) -> str:
-	"""
-	Safe recursive format that won't break on unknown curly brackets.
+		Safe mode only replaces variables that exist in the dictionary. Leaves other curly brackets untouched.
+		"""
+		return _re_formatting_keyword_sub(self.__escape_match, template)
 
-	It's not actually recursive - because, you know, any recursion could be turned into iteration,
-	and good boys do that. 😊
-	"""
-	assert isinstance(_RECURSION_LIMIT, int) and _RECURSION_LIMIT > 0
+	def __format_simple(self, template: str) -> str:
+		if self.safe:
+			template = self.__escape_for_safe_format(template)
+		return template.format_map(self.format_dict)
 
-	# Avoid unnecessary `if`s in the loop - pre-build a condition-less func:
-	if safe_mode:
-		formatting_func = _safe_format
-	else:
-		formatting_func = _partial(
-			_escape_unknown_keywords,
-			match_escaping_func=_build_match_escaping_func_for_re_sub(set(format_dict.keys()))
-		)
+	def __format_recursive(self, template: str) -> str:
+		"""
+		It's not actually recursive - because, you know, any recursion could be turned into iteration,
+		and good boys do that. 😊
+		"""
+		assert isinstance(_RECURSION_LIMIT, int) and _RECURSION_LIMIT > 0
 
-	prev: str = ''
-	new: str = template
-	for i in range(_RECURSION_LIMIT):
+		# Cache before loop - to avoid even 'dot' operator
+		escape_func = self.__escape_for_safe_format
+		format_dict: _t.Dict[str, _t.Any] = self.format_dict
+
+		# The following two funcs defined here instead of method overrides - to simplify their local scope:
+
+		def format_single_with_escape(_template: str):
+			_template = escape_func(_template)
+			return _template.format_map(format_dict)
+
+		def format_single_no_escape(_template: str):
+			return _template.format_map(format_dict)
+
+		format_single_func = format_single_with_escape if self.safe else format_single_no_escape
+
+		prev: str = ''
+		new: str = template
+		for i in range(_RECURSION_LIMIT):
+			if prev == new:
+				break
+			prev = new
+			new = format_single_func(new)
+
 		if prev == new:
-			break
-		prev = new
-		new = formatting_func(new, format_dict)
-	
-	if prev == new:
-		return new
+			return new
 
-	msg = (
-		f"Recursion limit ({_RECURSION_LIMIT}) reached on attempt to format a string: {template!r}\n"
-		f"Last two formatting attempts:\n{prev!r}\n{new!r}"
-	)
-	if show and unique_id:
-		_show_text_on_node(msg, unique_id)
-	raise RecursionError(msg)
-	# noinspection PyUnreachableCode
-	return ''  # just to be extra-safe, if RecursionError is treated as warning
+		msg = (
+			f"Recursion limit ({_RECURSION_LIMIT}) reached on attempt to format a string: {template!r}\n"
+			f"Last two formatting attempts:\n{prev!r}\n{new!r}"
+		)
+		if self.show_status and self.unique_node_id:
+			_show_text_on_node(msg, self.unique_node_id)
+		raise RecursionError(msg)
+		# noinspection PyUnreachableCode
+		return ''  # just to be extra-safe, if RecursionError is treated as warning
+
+	@staticmethod
+	def _format(template: str) -> str:
+		raise NotImplementedError("This method should always be overridden after initialization.")
+
+	def __call__(self, template: str) -> str:
+		if not isinstance(template, str):
+			raise TypeError(f"Not a string: {template!r}")
+
+		out_text = self._format(template) if template else ''
+		if self.show_status and self.unique_node_id:
+			_show_text_on_node(out_text, self.unique_node_id)
+		return out_text
 
 # --------------------------------------
 
@@ -182,26 +205,13 @@ class StringConstructorFormatter:
 		recursive_format: bool = False,
 		safe_mode: bool = True,
 		show_status: bool = False,
-		dict: _t.Dict[str, _t.Any] = None,  #actually, required - but here to keep the declared params order
+		dict: _t.Dict[str, _t.Any] = None,  #actually, required - but it's here to keep the declared params order
 		unique_id: str = None
 	) -> _t.Tuple[str]:
-		if dict is None:
-			dict = {}
-		_verify_input_dict(dict)
-		if not isinstance(template, str):
-			raise TypeError(f"Not a string: {template!r}")
-
-		if recursive_format:
-			out_text = _recursive_format_safe(template, dict, safe_mode, show_status, unique_id)
-		else:
-			if safe_mode:
-				out_text = _safe_format(template, dict)
-			else:
-				out_text = _escape_unknown_keywords(
-					template, dict,
-					match_escaping_func=_build_match_escaping_func_for_re_sub(set(dict.keys()))
-				)
-		
-		if show_status and unique_id:
-			_show_text_on_node(out_text, unique_id)
+		formatter = _Formatter(
+			format_dict=dict,
+			recursive=recursive_format, safe=safe_mode,
+			show_status=show_status, unique_node_id=unique_id,
+		)
+		out_text = formatter(template)
 		return (out_text, )
