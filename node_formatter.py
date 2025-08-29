@@ -22,8 +22,29 @@ from .funcs_common import _show_text_on_node, _verify_input_dict
 
 _RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️
 
+def _n_brackets_after_escape_for_existing_key(n_brackets: int):
+	"""
+	Calculate the updated number of braces before/after the pattern.
+	Keeps the innermost set of brackets as-is for formatting,
+	but doubles all the leading/trailing brackets to escape them.
+	"""
+	n_extra = max(n_brackets - 1, 0)
+	return n_extra * 2 + 1
+
+
+def _rebuild_parsed_keyword(n_opening_brackets: int, inside_brackets: str, n_closing_brackets: int) -> str:
+	# According to "Beautiful/ideomatic python" lecture, string formatting is faster than other forms of concatenation
+	return '{}{}{}'.format(
+		'{' * n_opening_brackets,
+		inside_brackets,
+		'}' * n_closing_brackets
+	)
+
+
 _re_formatting_keyword_sub = _re.compile(  # Pre-compiled regex-sub func to find and replace {keyword} patterns
-	r'\{([^{}]*)\}'  # TODO: this won't catch repeating braces. Account for that.
+	'(\{+)([^{}]*)(\}+)'
+	# TODO: Takes leading/trailing braces into account, but not nested ones. Maybe implement some day,
+	#  but it would require true parsing - with stack of braces, nested parts iterator, etc.
 ).sub
 
 
@@ -55,8 +76,8 @@ class _Formatter:
 		if not format_dict:
 			self.__escape_match = self.__escape_match_no_keys
 
-		# No need to override __escape_for_safe_format().
-		# Instead, recursive method defines local function, and simple method just checks self.safe mode.
+		# No need to override _escape_for_safe_format().
+		# Instead, recursive method defines local function, and simple method just checks self.safe mode in-place.
 
 		self._format = self.__format_recursive if self.recursive else self.__format_simple
 
@@ -65,20 +86,22 @@ class _Formatter:
 	# 	return template
 
 	def __escape_match(self, match: _re.Match[str]) -> str:
-		key = match.group(1)
-		if key in self.format_dict:
-			return match.group(0)  # Keep as is for formatting
+		opening_brackets, inside_brackets, closing_brackets = match.groups()
+		if inside_brackets.strip() in self.format_dict:
+			n_opening = _n_brackets_after_escape_for_existing_key(opening_brackets)
+			n_closing = _n_brackets_after_escape_for_existing_key(closing_brackets)
+			return _rebuild_parsed_keyword(n_opening, inside_brackets, n_closing)
 		else:
-			return '{{' + key + '}}'  # Escape unknown
+			return _rebuild_parsed_keyword(len(opening_brackets) * 2, inside_brackets, len(closing_brackets) * 2)
 
 	@staticmethod
 	def __escape_match_no_keys(match: _re.Match[str]) -> str:
-		key = match.group(1)
-		return '{{' + key + '}}'  # Escape unknown
+		opening_brackets, inside_brackets, closing_brackets = match.groups()
+		return _rebuild_parsed_keyword(len(opening_brackets) * 2, inside_brackets, len(closing_brackets) * 2)
 
-	def __escape_for_safe_format(self, template: str) -> str:
+	def _escape_for_safe_format(self, template: str) -> str:
 		"""
-		Method to be called on template before the actual format - in safe mode.
+		Method to be called in safe mode - on template, before the actual format.
 
 		Safe mode only replaces variables that exist in the dictionary. Leaves other curly brackets untouched.
 		"""
@@ -86,7 +109,7 @@ class _Formatter:
 
 	def __format_simple(self, template: str) -> str:
 		if self.safe:
-			template = self.__escape_for_safe_format(template)
+			template = self._escape_for_safe_format(template)
 		return template.format_map(self.format_dict)
 
 	def __format_recursive(self, template: str) -> str:
@@ -97,7 +120,7 @@ class _Formatter:
 		assert isinstance(_RECURSION_LIMIT, int) and _RECURSION_LIMIT > 0
 
 		# Cache before loop - to avoid even 'dot' operator
-		escape_func = self.__escape_for_safe_format
+		escape_func = self._escape_for_safe_format
 		format_dict: _t.Dict[str, _t.Any] = self.format_dict
 
 		# The following two funcs defined here instead of method overrides - to simplify their local scope:
@@ -115,12 +138,9 @@ class _Formatter:
 		new: str = template
 		for i in range(_RECURSION_LIMIT):
 			if prev == new:
-				break
+				return new
 			prev = new
 			new = format_single_func(new)
-
-		if prev == new:
-			return new
 
 		msg = (
 			f"Recursion limit ({_RECURSION_LIMIT}) reached on attempt to format a string: {template!r}\n"
@@ -159,9 +179,10 @@ _input_types = _deepfreeze({
 		'recursive_format': (_IO.BOOLEAN, {'default': False, 'label_on': '❗ yes', 'label_off': 'no', 'tooltip': (
 			"Do recursive format - i.e., allow the chunks from the dictionary to reference other chunks."
 		)}),
-		'safe_mode': (_IO.BOOLEAN, {'default': True, 'label_on': 'safe', 'label_off': 'escape', 'tooltip': (
-			"Safe mode: Only format known variables, leave unknown {brackets} as-is.\n"
-			"Escape mode: Escape unknown {brackets} to {{brackets}} then format normally.\n"
+		'safe_format': (_IO.BOOLEAN, {'default': True, 'label_on': 'yes', 'label_off': 'no', 'tooltip': (
+			"Safe mode: If a specific {keyword} doesn't exist in the dict, leave it as-is.\n"
+			"On: missing {keywords} preserved intact.\n"
+			"Off: missing {keywords} raise an error.\n\n"
 			"Safe mode is recommended for templates with JSON, CSS, or other literal curly brackets."
 		)}),
 		'show_status': (_IO.BOOLEAN, {'default': True, 'label_on': 'formatted string', 'label_off': 'no', 'tooltip': (
@@ -203,14 +224,14 @@ class StringConstructorFormatter:
 	def main(
 		template: str,
 		recursive_format: bool = False,
-		safe_mode: bool = True,
+		safe_format: bool = True,
 		show_status: bool = False,
 		dict: _t.Dict[str, _t.Any] = None,  #actually, required - but it's here to keep the declared params order
 		unique_id: str = None
 	) -> _t.Tuple[str]:
 		formatter = _Formatter(
 			format_dict=dict,
-			recursive=recursive_format, safe=safe_mode,
+			recursive=recursive_format, safe=safe_format,
 			show_status=show_status, unique_node_id=unique_id,
 		)
 		out_text = formatter(template)
