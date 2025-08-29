@@ -5,6 +5,7 @@ Code for ``StringConstructorFormatter`` node.
 
 import typing as _t
 
+from functools import partial as _partial
 from inspect import cleandoc as _cleandoc
 import re as _re
 import sys as _sys
@@ -22,12 +23,32 @@ from .funcs_common import _show_text_on_node, _verify_input_dict
 _RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️
 
 
+_t_esc_func = _t.Callable[[_re.Match[str]], str]
+
+
+def _build_match_escaping_func_for_re_sub(known_keys: _t.Iterable[str]) -> _t_esc_func:
+	"""Function factory: builds a replacing func for a specific set of dict keys - to be passed to ``re.sub()``."""
+	known_keys_set = set(known_keys)
+	assert all(isinstance(x, str) for x in known_keys_set), f"Dict keys should be pre-validated by now. Got: {known_keys_set!r}"
+
+	def escape_func(match: _re.Match[str]) -> str:
+		key = match.group(1)
+		if key in known_keys_set:
+			return match.group(0)  # Keep as is for formatting
+		else:
+			return '{{' + key + '}}'  # Escape unknown
+
+	return escape_func
+
+
 _re_formatting_keyword_sub = _re.compile(  # Pre-compiled regex-replace func to find and replace {keyword} patterns
-	r'\{([^{}]*)\}'
+	r'\{([^{}]*)\}'  # TODO: this won't catch repeating braces. Account for that.
 ).sub
 
 
-def _escape_unknown_keywords(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
+def _escape_unknown_keywords(
+	template: str, format_dict: _t.Dict[str, _t.Any], match_escaping_func: _t_esc_func
+) -> str:
 	"""
 	Escape curly brackets that aren't format variables, then use normal format.
 	This approach preserves the original behavior for known variables.
@@ -36,18 +57,10 @@ def _escape_unknown_keywords(template: str, format_dict: _t.Dict[str, _t.Any]) -
 		# If no format dict, escape all curly brackets
 		return template.replace('{', '{{').replace('}', '}}')
 	
-	known_keys = set(format_dict.keys())
-	
-	def escape_func(match: _re.Match[str]) -> str:  # TODO: extract to define only once (and not in the loop)
-		key = match.group(1)
-		if key in known_keys:
-			return match.group(0)  # Keep as is for formatting
-		else:
-			return '{{' + key + '}}'  # Escape unknown
-	
-	escaped_template = _re_formatting_keyword_sub(escape_func, template)
+	escaped_template = _re_formatting_keyword_sub(match_escaping_func, template)
 	return escaped_template.format_map(format_dict)
 
+# --------------------------------------
 
 def _safe_format(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
 	"""
@@ -79,8 +92,14 @@ def _recursive_format_safe(
 	"""
 	assert isinstance(_RECURSION_LIMIT, int) and _RECURSION_LIMIT > 0
 
-	# Avoid unnecessary conditions in the loop:
-	formatting_func = _safe_format if safe_mode else _escape_unknown_keywords  # TODO: the latter one doesn't actually format
+	# Avoid unnecessary `if`s in the loop - pre-build a condition-less func:
+	if safe_mode:
+		formatting_func = _safe_format
+	else:
+		formatting_func = _partial(
+			_escape_unknown_keywords,
+			match_escaping_func=_build_match_escaping_func_for_re_sub(set(format_dict.keys()))
+		)
 
 	prev: str = ''
 	new: str = template
@@ -178,7 +197,10 @@ class StringConstructorFormatter:
 			if safe_mode:
 				out_text = _safe_format(template, dict)
 			else:
-				out_text = _escape_unknown_keywords(template, dict)
+				out_text = _escape_unknown_keywords(
+					template, dict,
+					match_escaping_func=_build_match_escaping_func_for_re_sub(set(dict.keys()))
+				)
 		
 		if show_status and unique_id:
 			_show_text_on_node(out_text, unique_id)
