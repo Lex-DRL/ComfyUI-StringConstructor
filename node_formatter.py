@@ -22,24 +22,6 @@ from .funcs_common import _show_text_on_node, _verify_input_dict
 _RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️
 
 
-def _safe_format(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
-	"""
-	Safe format that only replaces variables that exist in the dictionary.
-	Leaves other curly brackets untouched.
-	"""
-	if not format_dict:
-		return template
-	
-	# Create pattern that matches {key} only for keys that exist in format_dict
-	pattern = r'\{(' + '|'.join(_re.escape(key) for key in format_dict.keys()) + r')\}'
-	
-	def replace_func(match):
-		key = match.group(1)
-		return str(format_dict[key])
-	
-	return _re.sub(pattern, replace_func, template)  # TODO: turn to a pre-compiled func
-
-
 _re_formatting_keyword_sub = _re.compile(  # Pre-compiled regex-replace func to find and replace {keyword} patterns
 	r'\{([^{}]*)\}'
 ).sub
@@ -65,6 +47,24 @@ def _escape_unknown_keywords(template: str, format_dict: _t.Dict[str, _t.Any]) -
 	
 	escaped_template = _re_formatting_keyword_sub(escape_func, template)
 	return escaped_template.format_map(format_dict)
+
+
+def _safe_format(template: str, format_dict: _t.Dict[str, _t.Any]) -> str:
+	"""
+	Safe format that only replaces variables that exist in the dictionary.
+	Leaves other curly brackets untouched.
+	"""
+	if not format_dict:
+		return template
+
+	# Create pattern that matches {key} only for keys that exist in format_dict
+	pattern = r'\{(' + '|'.join(_re.escape(key) for key in format_dict.keys()) + r')\}'
+
+	def replace_func(match):
+		key = match.group(1)
+		return str(format_dict[key])
+
+	return _re.sub(pattern, replace_func, template)  # TODO: turn to a pre-compiled func
 
 
 def _recursive_format_safe(
