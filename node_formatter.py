@@ -5,7 +5,7 @@ Code for ``StringConstructorFormatter`` node.
 
 import typing as _t
 
-from dataclasses import dataclass as _dataclass
+from dataclasses import dataclass as _dataclass, field as _field
 from inspect import cleandoc as _cleandoc
 import re as _re
 import sys as _sys
@@ -20,44 +20,30 @@ from .enums import DataTypes as _DataTypes
 from .funcs_common import _show_text_on_node, _verify_input_dict
 
 
-_RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️
+_RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️single
 
-def _n_brackets_after_escape_for_existing_key(n_brackets: int):
-	"""
-	Calculate the updated number of braces before/after the pattern.
-	Keeps the innermost set of brackets as-is for formatting,
-	but doubles all the leading/trailing brackets to escape them.
-	"""
-	n_extra = max(n_brackets - 1, 0)
-	return n_extra * 2 + 1
+__dataclass_slots_args = dict() if _sys.version_info < (3, 10) else dict(slots=True)
 
-
-def _rebuild_parsed_keyword(n_opening_brackets: int, inside_brackets: str, n_closing_brackets: int) -> str:
-	# According to "Beautiful/ideomatic python" lecture, string formatting is faster than other forms of concatenation
-	return '{}{}{}'.format(
-		'{' * n_opening_brackets,
-		inside_brackets,
-		'}' * n_closing_brackets
-	)
+_re_formatting_keyword_match = _re.compile(  # Pre-compiled regex match to extract ``{keyword}`` patterns
+	r'(?P<prefix>.*?)'
+	r'(?P<open_brackets>\{+)'
+	r'(?P<inside_brackets>[^{}]+)'
+	r'(?P<closed_brackets>\}+)'
+	r'(?P<suffix>[^{}].*)?$'
+).match
 
 
-_re_formatting_keyword_sub = _re.compile(  # Pre-compiled regex-sub func to find and replace {keyword} patterns
-	r'(\{+)([^{}]*)(\}+)'
-	# TODO: Takes leading/trailing braces into account, but not nested ones. Maybe implement some day,
-	#  but it would require true parsing - with stack of braces, nested parts iterator, etc.
-).sub
-
-
-@_dataclass
+@_dataclass(**__dataclass_slots_args)
 class _Formatter:
 	"""
 	A callable (function-like) class, which does the actual formatting, while respecting all the options.
 
 	It's made as a class to split the formatting into two stages:
-	- First, the instance is properly initialized with the shared arguments (all the method overrides are made depending on options);
+	- First, the instance is properly initialized with the shared arguments (the methods to call are conditionally assigned depending on options);
 	- Then, the actual instance is treated as a function - it needs to be called with the formatted string as the only argument.
 
-	It's done this way to avoid extra conditions in the loop + to organize all the setup work in one place.
+	It's done this way to avoid extra conditions in the loop + to organize the convoluted mess of intertwined functions
+	into a more readable code.
 	"""
 	format_dict: _t.Optional[_t.Dict[str, _t.Any]] = None
 
@@ -67,50 +53,96 @@ class _Formatter:
 	show_status: bool = True
 	unique_node_id: str = None
 
+	__format_single: _t.Callable[[str], str] = _field(init=False, repr=False, compare=False, default=lambda x: x)
+	_format: _t.Callable[[str], str] = _field(init=False, repr=False, compare=False, default=lambda x: x)
+
 	def __post_init__(self):  # called by dataclass init
 		if self.format_dict is None:
 			self.format_dict = dict()
 
 		format_dict = self.format_dict
 		_verify_input_dict(format_dict)
-		if not format_dict:
-			self.__escape_match = self.__escape_match_no_keys
+		self.__format_single = self.__format_single_safe if self.safe else self.__format_single_unsafe
 
-		# No need to override _escape_for_safe_format().
-		# Instead, recursive method defines local function, and simple method just checks self.safe mode in-place.
-
-		self._format = self.__format_recursive if self.recursive else self.__format_simple
-
-	# @staticmethod
-	# def __dummy_return_intact(template: str) -> str:
-	# 	return template
-
-	def __escape_match(self, match: _re.Match[str]) -> str:
-		opening_brackets, inside_brackets, closing_brackets = match.groups()
-		if inside_brackets.strip() in self.format_dict:
-			n_opening = _n_brackets_after_escape_for_existing_key(len(opening_brackets))
-			n_closing = _n_brackets_after_escape_for_existing_key(len(closing_brackets))
-			return _rebuild_parsed_keyword(n_opening, inside_brackets, n_closing)
+		if format_dict:
+			self._format = self.__format_recursive if self.recursive else self.__format_single
 		else:
-			return _rebuild_parsed_keyword(len(opening_brackets) * 2, inside_brackets, len(closing_brackets) * 2)
+			self._format = self.__dummy_return_intact
 
 	@staticmethod
-	def __escape_match_no_keys(match: _re.Match[str]) -> str:
-		opening_brackets, inside_brackets, closing_brackets = match.groups()
-		return _rebuild_parsed_keyword(len(opening_brackets) * 2, inside_brackets, len(closing_brackets) * 2)
+	def __dummy_return_intact(template: str) -> str:
+		return template
 
-	def _escape_for_safe_format(self, template: str) -> str:
-		"""
-		Method to be called in safe mode - on template, before the actual format.
-
-		Safe mode only replaces variables that exist in the dictionary. Leaves other curly brackets untouched.
-		"""
-		return _re_formatting_keyword_sub(self.__escape_match, template)
-
-	def __format_simple(self, template: str) -> str:
-		if self.safe:
-			template = self._escape_for_safe_format(template)
+	def __format_single_unsafe(self, template: str):
 		return template.format_map(self.format_dict)
+
+	def __format_single_safe_parts_gen(self, template: str) -> _t.Generator[str, None, None]:
+		"""
+		EAFP: https://docs.python.org/3/glossary.html#term-EAFP
+
+		Instead of pre-escaping the whole template
+		(which would require basically re-implementing the entire format-parsing logic),
+		let's extract individual formatted pieces, actually try formatting them one by one,
+		and return anything that cannot be formatted as-is - without any processing at all.
+
+		This generator returns such pieces - formatted or intact.
+		"""
+		format_dict = self.format_dict
+		to_piece_template = '{{{}}}'.format
+
+		suffix: str = template
+		while suffix:
+			match = _re_formatting_keyword_match(suffix)
+			if not match:
+				break
+
+			prefix = match.group('prefix')
+			open_brackets = match.group('open_brackets')
+			inside_brackets = match.group('inside_brackets')
+			closed_brackets = match.group('closed_brackets')
+			suffix = match.group('suffix')
+
+			if prefix:
+				yield prefix
+
+			piece_template = to_piece_template(inside_brackets)
+			# noinspection PyBroadException
+			try:
+				formatted_piece = piece_template.format_map(format_dict)
+			except Exception:
+				# If, for ANY reason, we're unable to format the piece, return the template piece intact:
+				yield open_brackets
+				yield inside_brackets
+				yield closed_brackets
+				continue
+
+			# The key is found. Treat the piece as the actual formatting pattern.
+			# Formatting "eats" one set of brackets either way:
+			open_brackets = open_brackets[:-1]
+			closed_brackets = closed_brackets[:-1]
+
+			# Now, even though we've succeeded, the template might've been pre-escaped.
+			if open_brackets and closed_brackets:
+				# The keyword is already pre-escaped. Return it intact:
+				formatted_piece = inside_brackets
+
+			yield open_brackets
+			yield formatted_piece
+			yield closed_brackets
+
+		if suffix:
+			yield suffix
+
+	def __format_single_safe(self, template: str) -> str:
+		"""
+		Format the pattern (single iteration of formatting) in the safe mode.
+		Safe mode preserves any unknown ``{text patterns}`` inside curly brackets if they cannot be formatted.
+		Correctly handles any formatting patterns natively supported by python
+		(even the most fancy ones, involving ':', '!', attribute or index access, etc.).
+
+		Useful when JSON/CSS-like code is in the formatted template.
+		"""
+		return ''.join(self.__format_single_safe_parts_gen(template))
 
 	def __format_recursive(self, template: str) -> str:
 		"""
@@ -119,20 +151,7 @@ class _Formatter:
 		"""
 		assert isinstance(_RECURSION_LIMIT, int) and _RECURSION_LIMIT > 0
 
-		# Cache before loop - to avoid even 'dot' operator
-		escape_func = self._escape_for_safe_format
-		format_dict: _t.Dict[str, _t.Any] = self.format_dict
-
-		# The following two funcs defined here instead of method overrides - to simplify their local scope:
-
-		def format_single_with_escape(_template: str):
-			_template = escape_func(_template)
-			return _template.format_map(format_dict)
-
-		def format_single_no_escape(_template: str):
-			return _template.format_map(format_dict)
-
-		format_single_func = format_single_with_escape if self.safe else format_single_no_escape
+		format_single_func = self.__format_single
 
 		prev: str = ''
 		new: str = template
@@ -152,10 +171,6 @@ class _Formatter:
 		# noinspection PyUnreachableCode
 		return ''  # just to be extra-safe, if RecursionError is treated as warning
 
-	@staticmethod
-	def _format(template: str) -> str:
-		raise NotImplementedError("This method should always be overridden after initialization.")
-
 	def __call__(self, template: str) -> str:
 		if not isinstance(template, str):
 			raise TypeError(f"Not a string: {template!r}")
@@ -173,16 +188,17 @@ _input_types = _deepfreeze({
 			"Type the text template. "
 			"To reference named substrings from format-dictionary, use this syntax: {substring_name}. For example:\n\n"
 			"score_9, score_8_up, score_7_up, {char1_short}, standing next to {char2_short},\n"
-			"{char1_long}\n{char2_long}\n\n"
-			"Curly brackets that don't match dictionary keys will be handled according to the sanitization mode."
+			"{char1_long}\n{char2_long}"
 		)}),
 		'recursive_format': (_IO.BOOLEAN, {'default': False, 'label_on': '❗ yes', 'label_off': 'no', 'tooltip': (
 			"Do recursive format - i.e., allow the chunks from the dictionary to reference other chunks."
 		)}),
 		'safe_format': (_IO.BOOLEAN, {'default': True, 'label_on': 'yes', 'label_off': 'no', 'tooltip': (
-			"Safe mode: If a specific {keyword} doesn't exist in the dict, leave it as-is.\n"
-			"On: missing {keywords} preserved intact.\n"
-			"Off: missing {keywords} raise an error.\n\n"
+			"Safe mode: If a specific {text pattern} can't be formatted "
+			"(it doesn't exist in the dict or isn't a valid formatting pattern at all), "
+			"leave it as-is.\n"
+			"On: invalid {patterns} preserved intact.\n"
+			"Off: invalid {patterns} raise an error.\n\n"
 			"Safe mode is recommended for templates with JSON, CSS, or other literal curly brackets."
 		)}),
 		'show_status': (_IO.BOOLEAN, {'default': True, 'label_on': 'formatted string', 'label_off': 'no', 'tooltip': (
