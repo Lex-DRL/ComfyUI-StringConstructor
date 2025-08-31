@@ -29,7 +29,9 @@ _re_formatting_keyword_match = _re.compile(  # Pre-compiled regex match to extra
 	r'(?P<open_brackets>\{+)'
 	r'(?P<inside_brackets>[^{}]+)'
 	r'(?P<closed_brackets>\}+)'
-	r'(?P<suffix>[^{}].*)?$'
+	r'(?P<suffix>[^{}].*)?$',
+	# flags=_re.DOTALL | _re.IGNORECASE,
+	flags = _re.DOTALL,  # We need dot to match new lines, too
 ).match
 
 
