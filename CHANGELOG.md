@@ -7,8 +7,9 @@ To do some fancy stuff with dictionaries, specialized node packs are recommended
 
 # v1.1.0
 
-- `✨New feature` Safe-formatting mode:
+- `✨New feature` Safe-formatting mode for `String Formatter`:
   - When an invalid pattern included in the formatted template - instead of throwing an error, leaves this part of the template as-is. Useful for templates with curly braces in them intended to stay: JSON/CSS.
+  - The entire implementation of `String Formatter` node is fully reworked because of it.
 
 # v1.0.4
 
