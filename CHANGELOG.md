@@ -1,7 +1,14 @@
 ## `TODO`
 
 The pack is considered feature-complete.
-No other features planned. To do some fancy stuff with dictionaries, specialized node packs are recommended instead.
+No other features planned (but I have nothing against improvements: feel free to [Pull Request](../../pulls)).
+
+To do some fancy stuff with dictionaries, specialized node packs are recommended instead.
+
+# v1.1.0
+
+- `✨New feature` Safe-formatting mode:
+  - When an invalid pattern included in the formatted template - instead of throwing an error, leaves this part of the template as-is. Useful for templates with curly braces in them intended to stay: JSON/CSS.
 
 # v1.0.4
 

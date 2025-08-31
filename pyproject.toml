@@ -1,19 +1,27 @@
 [project]
 name = "string-constructor"
+version = "1.1.0"
 description = "String formatting (compiling text from pieces) made for humans:\n• Turn parts of prompt into a dictionary - to share them all across the entire workflow as a single connection.\n• Compose your prompt in-place from these snippets and regular text - with just one text field.\n• Easily update the dictionary down the line - get different prompts from the same template.\n• Reference text chunks within each other to build complex hierarchies of self-updating prompts.\n• A true time-saver for regional prompting (aka area composition)."
-version = "1.0.4"
+license = {file = "LICENSE.md"}
+readme = "README.md"
 authors = [
   {name = "Lex Darlog"}
 ]
-license = {file = "LICENSE.md"}
-readme = "README.md"
+requires-python = ">=3.7"
 dependencies = ["frozendict"]
+classifiers = [
+  # https://docs.comfy.org/registry/specifications#classifiers-recommended
+  "Operating System :: OS Independent",
+]
 
 [project.urls]
 Repository = "https://github.com/Lex-DRL/ComfyUI-StringConstructor"
+"Feedback/Bugs/Feature Requests" = "https://github.com/Lex-DRL/ComfyUI-StringConstructor/issues"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
 PublisherId = "lex-drl"
 DisplayName = "String Constructor (Text-Formatting)"
-Icon = ""
+# Icon = "https://raw.githubusercontent.com/username/repo/main/icon.png"
+# Banner = "https://raw.githubusercontent.com/username/repo/main/banner.png"
+# requires-comfyui = ">=0.3.51" # Node schema v3 released # TODO

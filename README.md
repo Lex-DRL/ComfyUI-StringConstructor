@@ -159,16 +159,33 @@ neg_common
 
 ### When you need curly braces themselves
 
-To have the literal curly-brace characters inside the **formatted** prompt, you need to "escape" them: whenever you need one, you type it twice (`'{{'` or `'}}'`). Then, after formatting, it will turn to `'{'` or `'}'`, respectively.
+#### Safe mode `✨New in v1.1.0`
 
-Keep in mind though, that with [Recursive formatting](#recursive-formatting-), any `{{text}}` will become `{text}` after very first iteration, and thus on the next one, it still will be treated as a placeholder to put a string with a `text` key into.
+The simplest solution - just enable `safe_format` toggle. It changes the node behavior: whenever formatter encounters any `{text inside curly braces}` that cannot be formatted _(for any reason: the dict misses this key, or it's an outright invalid pattern)_, it doesn't throw an error and instead simply leaves this part of template as-is.
+
+It's extremely useful for code-like templates (e.g., containing JSON or CSS).
+
+However, even for proper `{patterns}` referencing proper dict keys, the manual escaping (see below) also applies.
+
+> [!NOTE]
+> Keep in mind that any spaces inside braces immediately make this pattern invalid.
+> 
+> Thus, if you want to have something like: `{{my_key}}` _(so, `{my_key}` to be replaced + it's wrapped into another set of braces which you want to have in the output)_, the easiest way to do it without escaping is simply enabling safe mode and adding a couple of spaces inside the braces you want to stay. So: `{ {my_key} }` - the innermost part will be replaced with the value of `my_key` item from the dict, while the outer braces will stay.
+
+#### Manual escaping - double braces
+
+If you want to explicitly control which braces perform formatting and which don't - to have the literal curly-brace characters inside the prompt **after** formatting, you need to [escape](https://docs.python.org/3/library/string.html#format-string-syntax) them: whenever you need one, you type it twice (`'{{'` or `'}}'`). Then, after formatting, it will turn to `'{'` or `'}'`, respectively.
+
+Keep in mind though, that with escaping approach and [Recursive formatting](#recursive-formatting-), any `{{text}}` will become `{text}` after very first iteration, and thus on the next one, it still will be treated as a placeholder to put a value of the `text` key into.
 
 However, this might be exactly what you want for...
 
 ### Dynamic pattern aka conditional formatting
 
 In other words, you build a prompt, where **keys themselves** are compiled from pieces. For example:
-- Your main text template has {{character_`{active_char}`}} pattern somewhere inside it.
+- Your main text template has one of the following patterns somewhere inside it:
+  - {{character_`{active_char}`}} - if safe mode is off;
+  - {character_`{active_char}`} - if safe mode is on.
 - You also have a string named `active_char` in your dict, which you simply set to a number.
 - Also-also, you have strings named `character_1`, `character_2`, etc.
 - Then, with recursive formatting, depending on just a **single** value you set the `active_char` element to, the following happens:
