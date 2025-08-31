@@ -196,11 +196,8 @@ _input_types = _deepfreeze({
 			"Do recursive format - i.e., allow the chunks from the dictionary to reference other chunks."
 		)}),
 		'safe_format': (_IO.BOOLEAN, {'default': True, 'label_on': 'yes', 'label_off': 'no', 'tooltip': (
-			"Safe mode: If a specific {text pattern} can't be formatted "
-			"(it doesn't exist in the dict or isn't a valid formatting pattern at all), "
-			"leave it as-is.\n"
-			"On: invalid {patterns} preserved intact.\n"
-			"Off: invalid {patterns} raise an error.\n\n"
+			"If template contains an invalid {text pattern} which can't be formatted - leave it as-is "
+			"(instead of throwing an error).\n"
 			"Safe mode is recommended for templates with JSON, CSS, or other literal curly brackets."
 		)}),
 		'show_status': (_IO.BOOLEAN, {'default': True, 'label_on': 'formatted string', 'label_off': 'no', 'tooltip': (
