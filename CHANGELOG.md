@@ -5,6 +5,10 @@ No other features planned (but I have nothing against improvements: feel free to
 
 To do some fancy stuff with dictionaries, specialized node packs are recommended instead.
 
+# v1.1.1
+
+- Shorten tooltip for `safe_format` toggle.
+
 # v1.1.0
 
 - `✨New feature` Safe-formatting mode for `String Formatter`:
