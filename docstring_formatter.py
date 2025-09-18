@@ -1,5 +1,6 @@
 # encoding: utf-8
 """
+Internal utility functions for auto-creating tooltips from dosctrings.
 """
 
 import typing as _t
