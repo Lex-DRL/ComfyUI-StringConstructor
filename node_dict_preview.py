@@ -7,7 +7,7 @@ import typing as _t
 from inspect import cleandoc as _cleandoc
 from pprint import pformat as _pformat
 
-from frozendict import deepfreeze as _deepfreeze
+from frozendict import deepfreeze as _deepfreeze, frozendict as _frozendict
 
 from . import _meta
 from .docstring_formatter import format_docstring as _format_docstring
@@ -24,7 +24,13 @@ def _to_regular_dict_recursive_copy(input_dict: dict = None) -> dict:
 	if not input_dict:
 		return dict()
 	return {
-		k: (_to_regular_dict_recursive_copy(v) if isinstance(v, dict) else v)
+		k: (
+			_to_regular_dict_recursive_copy(v)
+			# In py3.10, frozendict isn't a dict, but is a `typing.Mapping`.
+			# So, this many types to check against:
+			if isinstance(v, (dict, _frozendict, _t.Mapping))
+			else v
+		)
 		for k, v in input_dict.items()
 	}
 

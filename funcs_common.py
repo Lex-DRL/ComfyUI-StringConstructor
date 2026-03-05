@@ -7,7 +7,7 @@ import typing as _t
 
 import re as _re
 
-from frozendict import deepfreeze as _deepfreeze
+from frozendict import deepfreeze as _deepfreeze, frozendict as _frozendict
 
 from server import PromptServer as _PromptServer
 
@@ -71,7 +71,9 @@ def _verify_input_dict(input_dict: _t.Dict[str, _T] = None, error_if_none=False)
 			raise TypeError("No input-dict")
 		return
 
-	if not isinstance(input_dict, dict):
+	# In py3.10, frozendict isn't a dict, but is a `typing.Mapping`.
+	# So, this many types to check against:
+	if not isinstance(input_dict, (dict, _frozendict, _t.Mapping)):
 		raise TypeError(f"Input-dict isn't a dict. Got: {input_dict!r}")
 
 	errors_dict: _t.Dict[_t.Any, str] = dict()
