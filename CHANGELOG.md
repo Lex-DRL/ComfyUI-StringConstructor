@@ -5,6 +5,10 @@ No other features planned (but I have nothing against improvements: feel free to
 
 To do some fancy stuff with dictionaries, specialized node packs are recommended instead.
 
+# v1.1.2
+
+- `[fix]` [False-positive `Input-dict isn't a dict` type-check error on older python versions (3.10)](https://github.com/Lex-DRL/ComfyUI-StringConstructor/issues/4)
+
 # v1.1.1
 
 - Shorten tooltip for `safe_format` toggle.
@@ -19,7 +23,7 @@ To do some fancy stuff with dictionaries, specialized node packs are recommended
 
 - All the secondary dict-related nodes are moved to a subcategory.
 - Default node name shortened: `Format-Dict` → just `Dict`.
-- New node: `Extract String from Dict` - to be actually self-sufficient for the common use cases.
+- `✨New node` - `Extract String from Dict` - to be actually self-sufficient for the common use cases.
 
 # v1.0.3
 
@@ -28,11 +32,11 @@ To do some fancy stuff with dictionaries, specialized node packs are recommended
 
 # v1.0.2
 
-- New node: `Validate Format-Dict`
+- `✨New node` - `Validate Format-Dict`
 
 # v1.0.1
 
-- ❗ Recursive formatting.
+- `✨New feature` ❗ Recursive formatting.
 - Tiny tweaks to tooltips/descriptions.
 
 # v1.0.0
