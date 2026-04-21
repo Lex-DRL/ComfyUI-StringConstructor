@@ -5,7 +5,13 @@
 # `String Constructor` (Text-Formatting) nodes
 ... for ComfyUI.
 
-[🔄 Updates ChangeLog](CHANGELOG.md)
+> [!WARNING]
+> Starting with `v3.x`:
+> - I adopt a new versioning scheme, where:
+>   - First number is internal node-API version.
+>   - Second is major update - when it bumps, it contains breaking changes.
+>   - Last is a minor update.
+> - **ALL** the dictionary-building nodes are extracted into their own node pack: [🗂️ Dict Tools](https://github.com/Lex-DRL/ComfyUI-DictTools).
 
 ### TL;DR
 
