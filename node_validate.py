@@ -6,7 +6,7 @@ from inspect import cleandoc as _cleandoc
 from comfy_api.latest import io as _io
 
 from .__meta import (
-	category_dict as _category_dict,
+	category as _category,
 	pack_id_suffix as _pack_id
 )
 from .__typing import _A, _U, _O, _t, T as _T, FormatDict as _FormatDict
@@ -28,7 +28,7 @@ class ValidateKeys(_BaseNode):
 	_schema = _io.Schema(
 		node_id=f'ValidateKeys{_pack_id}',
 		display_name='Validate Dict',
-		category=_category_dict,
+		category=_category,
 		description=_format_docstring(_cleandoc(__doc__)),
 		inputs=[_DICT_INPUT_OPTIONAL],
 		outputs=[_DICT_OUTPUT],
