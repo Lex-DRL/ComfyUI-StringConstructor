@@ -2,33 +2,18 @@
 """
 """
 
-import typing as _t
+from comfy_api.latest import ComfyExtension as _ComfyExtension, io as _io
 
-from .node_dict_add_any import StringConstructorDictAddAny
-from .node_dict_add_string import StringConstructorDictAddString
-from .node_dict_key_extract import StringConstructorDictExtractString
-from .node_dict_from_text import StringConstructorDictFromText
-from .node_dict_preview import StringConstructorDictPreview
-from .node_formatter import StringConstructorFormatter
-from .node_validate_keys import StringConstructorValidateKeys
+from ._formatter_class import Formatter
+from .node_formatter import *
+from .node_validate import *
 
-NODE_CLASS_MAPPINGS: _t.Dict[str, type] = {
-	'StringConstructorDictAddAny': StringConstructorDictAddAny,
-	'StringConstructorDictAddString': StringConstructorDictAddString,
-	'StringConstructorDictExtractString': StringConstructorDictExtractString,
-	'StringConstructorDictFromText': StringConstructorDictFromText,
-	'StringConstructorDictPreview': StringConstructorDictPreview,
-	'StringConstructorFormatter': StringConstructorFormatter,
-	'StringConstructorValidateKeys': StringConstructorValidateKeys,
-}
-NODE_DISPLAY_NAME_MAPPINGS: _t.Dict[str, str] = {
-	'StringConstructorDictAddAny': "Add ANY to Dict",
-	'StringConstructorDictAddString': "Add String to Dict",
-	'StringConstructorDictExtractString': "Extract String from Dict",
-	'StringConstructorDictFromText': "Dict from Text",
-	'StringConstructorDictPreview': "Preview Dict",
-	'StringConstructorFormatter': "String Formatter",
-	'StringConstructorValidateKeys': "Validate Dict",
-}
+class StringConstructorExtension(_ComfyExtension):
+	async def get_node_list(self) -> list[type[_io.ComfyNode]]:
+		return [
+			StringFormatter, StringFormatterOld1,
+			ValidateKeys, ValidateKeysOld1,
+		]
 
-__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']
+async def comfy_entrypoint() -> _ComfyExtension:
+	return StringConstructorExtension()
