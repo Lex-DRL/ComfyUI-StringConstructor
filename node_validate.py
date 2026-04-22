@@ -10,7 +10,7 @@ from .__meta import (
 	pack_id_suffix as _pack_id
 )
 from .__typing import _A, _U, _O, _t, T as _T, FormatDict as _FormatDict
-from ._dict import _verify_input_dict
+from ._validate_funcs import _verify_input_dict
 from ._io_custom import (
 	_BaseNode,
 	_DICT_INPUT_OPTIONAL, _DICT_OUTPUT,

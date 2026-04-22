@@ -8,7 +8,7 @@ import re as _re
 import sys as _sys
 
 from .__typing import _A, _U, _O, _t, T as _T, FormatDict as _FormatDict
-from ._dict import _verify_input_dict
+from ._validate_funcs import _verify_input_dict
 
 
 _RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️single
