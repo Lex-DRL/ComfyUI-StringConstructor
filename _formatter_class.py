@@ -7,8 +7,8 @@ from dataclasses import dataclass as _dataclass, field as _field
 import re as _re
 import sys as _sys
 
-from .__typing import _A, _U, _O, _t, T as _T, FormatDict as _FormatDict
-from ._dict import _verify_input_dict
+from .__typing import _A, _U, _O, _t, T as _T, DictMap as _DictMap
+from ._validate_funcs import _cleanup_format_dict
 
 
 _RECURSION_LIMIT = max(int(_sys.getrecursionlimit()), 1)  # You can externally monkey-patch it... but if it blows up, your fault 🤷🏻‍♂️single
@@ -38,7 +38,7 @@ class Formatter:
 	It's done this way to avoid extra conditions in the loop + to organize the convoluted mess of intertwined functions
 	into a more readable code.
 	"""
-	format_dict: _O[_FormatDict] = None
+	format_dict: _O[_DictMap] = None
 
 	recursive: bool = False
 	safe: bool = True
@@ -50,8 +50,8 @@ class Formatter:
 		if self.format_dict is None:
 			self.format_dict = dict()
 
-		format_dict = self.format_dict
-		_verify_input_dict(format_dict)
+		format_dict = _cleanup_format_dict(self.format_dict)
+		self.format_dict = format_dict
 		self.__format_single = self.__format_single_safe if self.safe else self.__format_single_unsafe
 
 		if format_dict:

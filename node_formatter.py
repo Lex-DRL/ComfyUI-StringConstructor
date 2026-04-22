@@ -9,7 +9,7 @@ from .__meta import (
 	category as _category,
 	pack_id_suffix as _pack_id
 )
-from .__typing import _A, _U, _O, _t, T as _T, FormatDict as _FormatDict
+from .__typing import _A, _U, _O, _t, T as _T, DictMap as _DictMap
 from ._formatter_class import Formatter as _Formatter
 from ._io_custom import (
 	_BaseNode,
@@ -89,7 +89,7 @@ class StringFormatter(_BaseNode):
 		recursive_format: bool = False,
 		safe_format: bool = True,
 		show_status: bool = False,
-		dict: _O[_FormatDict] = None,
+		dict: _O[_DictMap] = None,
 	) -> _io.NodeOutput:
 		formatter = _Formatter(
 			format_dict=dict, recursive=recursive_format, safe=safe_format,
