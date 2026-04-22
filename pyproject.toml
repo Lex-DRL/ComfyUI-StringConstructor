@@ -1,6 +1,6 @@
 [project]
 name = "string-constructor"
-version = "3.1.2"
+version = "3.1.3"
 description = """
 String formatting (compiling text from pieces) made for humans:
 • Turn parts of prompt into a dictionary - to share them all across the entire workflow as a single connection.
