@@ -5,23 +5,23 @@
 # `String Constructor` (Text-Formatting) nodes
 ... for ComfyUI.
 
-> [!WARNING]
-> Starting with `v3.x`:
-> - I adopt a new versioning scheme, where:
->   - First number is internal node-API version.
->   - Second is major update - when it bumps, it contains breaking changes.
->   - Last is a minor update.
-> - **ALL** the dictionary-building nodes are extracted into their own node pack: [🗂️ Dict Tools](https://github.com/Lex-DRL/ComfyUI-DictTools).
-
 ### TL;DR
 
-There's already a plenty of string-formatting nodes for ComfyUI. But this node pack takes a different approach:
-- Build your dictionary of available text chunks once. Pass it further as a single line (bus/pipe design).
-- Easily reuse these sub-strings to build as many variations of a prompt as needed.
+Yes, there's already a plenty of string-formatting nodes for ComfyUI *(like [ImpactWildcardProcessor](https://github.com/ltdrdata/ComfyUI-extension-tutorials/blob/Main/ComfyUI-Impact-Pack/tutorial/ImpactWildcard.md) from [Impact-Pack](https://github.com/ltdrdata/ComfyUI-Impact-Pack))*.
+
+But this node takes a different approach:
+- Build your dictionary of available text chunks once (see [🗂️ Dict Tools](https://github.com/Lex-DRL/ComfyUI-DictTools) pack). Pass it further as a single line (bus/pipe design).
+- Easily reuse any sub-strings from the dict - to build as many variations of a prompt as needed.
 - It's especially handy for regional prompting (aka area composition).
 - [❗ Recursive formatting support](#recursive-formatting-)
+- Only sky is the limit with [Conditional formatting](#conditional-formatting)
 - ...
 - PROFIT!
+
+> [!NOTE]
+> No dependencies on any external files.
+> - No need to prepare the text chunks ahead of time and save them in some `*.txt`. You define them right there in the workflow.
+> - You **CAN** save them if you insist (using any JSON-exporting/importing nodes), but you don't have to.
 
 ![screenshot1](img/screenshot1.png)
 
@@ -36,7 +36,7 @@ But the main point is, you don't need to fiddle around connecting a bunch of wir
 
 ### Dictionary
 
-For those unfamiliar, dictionary is a special datatype, which can contain a bunch of individual values (as many as you need), each of which accessible with its own **unique** name _(key)_. For our purposes, it can be understood as a simple "search & replace" table. So, you prepare a bunch of distinct parts of the prompt, you name them and then you can reference any of them individually.
+For those unfamiliar, dictionary is a special datatype, which can contain a bunch of individual values (as many as you need), each of which accessible with its own **unique** name _(key)_. For our purposes, it can be understood as a simple "search & replace" table. So, you prepare a bunch of distinct parts of the prompt, you name them, and then you can reference any of them individually.
 
 For example, in the screenshot shown above, this is the dictionary we get in the end (as the `Preview` node confirms):
 
@@ -68,7 +68,7 @@ The way you "paste" values from the dictionary into your text template is called
 
 It's quite simple in principle yet the most powerful feature of the pack.
 
-When formatting the string, you can let chunks reference each other, which unlocks immense possibilities - like building entire **HIERARCHIES** of descriptions with various granularity (tailored for different resolutions) or even [conditional string formatting](#dynamic-pattern-aka-conditional-formatting) for the most advanced users.
+When formatting the string, you can let chunks reference each other, which unlocks immense possibilities - like building entire **HIERARCHIES** of descriptions with various granularity (tailored for different resolutions) or even [conditional string formatting](#conditional-formatting) for the most advanced users.
 
 - You can design your dict to be intended for updating down the line. Change some keys → get a different prompt with the same template (for example, a more detailed description of a character).
 - Don't forget that with recursive formatting, [template itself could be a part of the dictionary](#pattern-as-part-of-the-dictionary), too!
@@ -186,19 +186,33 @@ Keep in mind though, that with escaping approach and [Recursive formatting](#rec
 
 However, this might be exactly what you want for...
 
-### Dynamic pattern aka conditional formatting
+### Conditional formatting
+*(aka "Dynamic patterns")*
 
-In other words, you build a prompt, where **keys themselves** are compiled from pieces. For example:
-- Your main text template has one of the following patterns somewhere inside it:
-  - {{character_`{active_char}`}} - if safe mode is off;
-  - {character_`{active_char}`} - if safe mode is on.
-- You also have a string named `active_char` in your dict, which you simply set to a number.
-- Also-also, you have strings named `character_1`, `character_2`, etc.
+Example (loadable as workflow):
+
+![Conditional formatting workflow](img/conditional_format.png)
+
+Result:
+```
+score_9, score_8_up, score_7_up, rating_safe
+handsome man, deep blue eyes, standing in grass field, looking at sky, breathtaking dawn
+```
+
+> [!TIP]
+> To make life easier, I strongly suggest using `safe mode` for this, or you'd have to do a lot of manual escaping.
+
+What this technique is: you build a prompt, where **the referenced keys themselves** are compiled from pieces. For example:
+- Your main text template has something like this somewhere inside it:
+  - {character_`{active_char}`} - assuming safe mode is on.
+- You also have a string named `active_char` in your dict, which you simply set to a number (or a more meaningful suffix with char name).
+- Also-also, you have strings named `character_1`, `character_2`, (or `character_john`, `character_jane`) etc.
 - Then, with recursive formatting, depending on just a **single** value you set the `active_char` element to, the following happens:
-  - At the first iteration, `{{` in the beginning and `}}` in the end are treated as escaped ones, so they're simply replaced to `{` and `}`.
-  - The middle `{active_char}` part, however, is treated as a real pattern to replace.
-  - Thus, after the first iteration, `{{character_{active_char}}}` becomes `{character_1}`...
-  - ... and in the next iteration, the actual value of `character_1` string is placed here instead.
+  - The outer curly braces in the full `{character_{active_char}}` text form a broken pattern, so safe format keeps them as-is.
+  - The middle `{active_char}` part, however, is treated as a real pattern to replace (if the `active_char` key exist in the dict).
+  - Thus, after the first iteration, `{character_{active_char}}` becomes `{character_1}` (or `{character_2}`, or `{character_john}`, ...)
+  - And in the next iteration, the actual value of `character_1` string is placed here instead.
+  - This doesn't have to be in the main prompt. It might be **ANYWHERE** in the recursion sequence, no matter how deep. Technically, this is "nothing special" - it's just the recursive formatting doing its job like it normally would.
 
 Clearly, to take advantage of this approach, you need to build your dictionary very cautiously and precisely. But if you do so, you effectively get a way of building entire **logic trees**, represented as data (not as code), all self-contained inside a single dictionary, but still letting you generate a **completely** different prompt by changing values of one or two such "switcher" strings.
 
